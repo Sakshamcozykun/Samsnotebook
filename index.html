@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sam's Notebook - Drawing & Highlighting (Modified)</title>
+    <title>Sam's Notebook - Enhanced</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Kalam:wght@300;400;700&family=Caveat:wght@400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         /* Basic body and notebook styles */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', sans-serif; /* Default UI font */
             user-select: none; /* Prevent text selection during drag/draw */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             background-color: #f0fdf4; /* Light green background */
-            /* Subtle dot grid background */
+            /* Subtle dot grid background for the body */
             background-image: radial-gradient(#a7f3d0 1px, transparent 1px), radial-gradient(#a7f3d0 1px, transparent 1px);
             background-size: 20px 20px;
             background-position: 0 0, 10px 10px;
             overscroll-behavior: none; /* Prevent pull-to-refresh */
+            transition: background-color 0.3s ease; /* Smooth theme transition */
         }
 
         .notebook-container {
@@ -47,7 +49,7 @@
             overflow: hidden;
             position: relative;
             transform-style: preserve-3d; /* Needed for page turn */
-            transition: box-shadow 0.3s ease;
+            transition: box-shadow 0.3s ease, background-color 0.3s ease;
         }
 
         .notebook:hover {
@@ -58,7 +60,7 @@
         .page-display {
             flex: 1; /* Each page takes half the width */
             height: 100%;
-            background-color: white;
+            background-color: white; /* Default page background */
             position: relative;
             border: 1px solid #d1d5db; /* Light gray border */
             overflow: hidden;
@@ -93,10 +95,6 @@
             width: 100%;
             height: 100%;
             box-sizing: border-box;
-            /* Lined paper effect */
-            background-image: linear-gradient(to bottom, transparent 98%, #9ae6b4 98%);
-            background-size: 100% 2em;
-            font-family: 'Kalam', cursive; /* Handwriting font */
             padding: 1.5rem;
             overflow: auto; /* Scroll if content overflows */
             user-select: text; /* Allow text selection inside content */
@@ -106,7 +104,37 @@
             scrollbar-width: thin;
             scrollbar-color: #6ee7b7 #f0fdf4;
             z-index: 1; /* Base layer */
+            background-color: white; /* Ensure background color is set */
+            font-family: 'Kalam', cursive; /* Default writing font */
+            transition: background-image 0.3s ease, background-color 0.3s ease, font-family 0.3s ease;
         }
+
+        /* Page Style Classes */
+        .page-style-lined {
+            background-image: linear-gradient(to bottom, transparent 98%, #9ae6b4 98%);
+            background-size: 100% 2em;
+        }
+        .page-style-dotted {
+            background-image: radial-gradient(#cccccc 1px, transparent 1px);
+            background-size: 15px 15px;
+            background-position: 0 0;
+        }
+        .page-style-graph {
+             background-image:
+                linear-gradient(to right, #e0f2fe 1px, transparent 1px),
+                linear-gradient(to bottom, #e0f2fe 1px, transparent 1px);
+             background-size: 20px 20px; /* Adjust grid size */
+        }
+        .page-style-blank {
+            background-image: none;
+        }
+
+        /* Font Style Classes */
+        .font-kalam { font-family: 'Kalam', cursive; }
+        .font-caveat { font-family: 'Caveat', cursive; }
+        .font-patrick-hand { font-family: 'Patrick Hand', cursive; }
+        .font-inter { font-family: 'Inter', sans-serif; } /* Option for sans-serif */
+
 
         .page-content::-webkit-scrollbar { width: 8px; }
         .page-content::-webkit-scrollbar-track { background: #f0fdf4; }
@@ -124,13 +152,13 @@
             cursor: grab;
             border: 1px dashed transparent;
             padding: 5px;
-            min-width: 30px; /* Reduced min size slightly */
+            min-width: 30px;
             min-height: 30px;
             background-color: rgba(255, 255, 255, 0.85); /* Slightly transparent background */
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             z-index: 10; /* Above page content and saved drawing */
-            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.3s ease;
             overflow: visible; /* Allow handles/buttons outside */
             touch-action: none; /* Prevent default touch actions like scrolling */
         }
@@ -156,7 +184,7 @@
 
         /* Text element styles */
         .scrapbook-text {
-            font-family: 'Kalam', cursive;
+            /* Font is now controlled by page style or specific element style */
             line-height: 1.5;
             outline: none;
             color: #1f2937;
@@ -171,7 +199,6 @@
             -moz-user-select: text;
             -ms-user-select: text;
             font-size: 16px;
-            /* Ensure text wraps and is visible */
              white-space: normal;
              word-wrap: break-word;
              overflow-wrap: break-word;
@@ -221,18 +248,6 @@
             height: 4px; /* Thickness of line */
             background-color: #34d399;
         }
-        .scrapbook-shape.arrow::after { /* Arrowhead */
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 15px solid #34d399;
-            top: -15px; /* Position above line end */
-            right: 5px;
-            transform: rotate(45deg);
-        }
 
         /* Sticker element styles */
         .scrapbook-sticker {
@@ -260,6 +275,11 @@
         body.drawing-mode-pending {
              cursor: crosshair; /* Indicate user should click a page */
         }
+        /* Style for eraser cursor */
+        #drawing-canvas.eraser-active {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19.03 4.97a4.243 4.243 0 0 0-6 0L6 12l-4 4 1.5 1.5L8 13l7.03-7.03a4.243 4.243 0 0 0 6-6zM8 13l-1.5 1.5M18 2l-1.5 1.5M12 19l6-6'%3E%3C/path%3E%3C/svg%3E") 12 12, auto;
+        }
+
 
         /* Saved drawing display (image placeholder) */
         .saved-drawing {
@@ -378,13 +398,14 @@
 
         /* Controls container styles */
         .controls-container {
-            @apply mt-8 flex flex-wrap justify-center items-center space-x-2 space-y-2 relative;
-            padding: 0.75rem;
+            @apply mt-4 flex flex-wrap justify-center items-center gap-x-2 gap-y-3 relative; /* Adjusted gap and margin */
+            padding: 0.75rem 1rem; /* More horizontal padding */
             background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
             border-radius: 1rem;
             backdrop-filter: blur(10px); /* Frosted glass effect */
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            max-width: 95%; /* Prevent overflow on smaller screens */
         }
         .controls-container:hover {
             background-color: rgba(255, 255, 255, 0.9);
@@ -392,7 +413,7 @@
         }
 
         /* General control button styles */
-        .control-button {
+        .control-button, .control-select {
             @apply px-4 py-2 bg-emerald-500 text-white rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-75 transition duration-200 ease-in-out flex items-center justify-center;
             font-size: 0.9rem;
             font-weight: 500;
@@ -401,6 +422,13 @@
             letter-spacing: 0.5px;
             position: relative;
             overflow: hidden; /* For hover effect */
+            border: none; /* Ensure selects look similar */
+            appearance: none; /* Remove default select arrow */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.2em 1.2em;
+            padding-right: 2.5rem; /* Space for custom arrow */
         }
         .control-button:not(:disabled) { @apply hover:bg-emerald-600; }
         .control-button:not(:disabled):active { transform: translateY(1px); }
@@ -422,6 +450,9 @@
             @apply p-3 bg-emerald-500 text-white rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-75 transition duration-200 ease-in-out flex items-center justify-center;
             position: relative;
             overflow: hidden;
+            min-width: auto; /* Remove min-width for icon button */
+            padding-right: 0.75rem; /* Reset padding for icon button */
+            background-image: none; /* Remove dropdown arrow */
         }
         #add-image-button:not(:disabled) { @apply hover:bg-emerald-600; }
         #add-image-button:not(:disabled):active { transform: translateY(1px); }
@@ -442,17 +473,18 @@
         /* Tooltip styles */
         .tooltip {
             position: absolute;
-            bottom: 120%; /* Position above the button */
+            bottom: 125%; /* Position above the button */
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.85);
             color: white;
             padding: 6px 12px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px; /* Slightly smaller */
             opacity: 0;
+            visibility: hidden; /* Hide completely */
             pointer-events: none;
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            transition: opacity 0.3s ease, visibility 0s linear 0.3s, transform 0.3s ease; /* Delay visibility change */
             white-space: nowrap;
             z-index: 10000; /* Ensure tooltip is on top */
         }
@@ -464,11 +496,13 @@
             margin-left: -5px;
             border-width: 5px;
             border-style: solid;
-            border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+            border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
         }
         .tooltip-trigger:hover .tooltip {
             opacity: 1;
+            visibility: visible; /* Make visible on hover */
             transform: translateX(-50%) translateY(-5px); /* Slight upward move */
+            transition: opacity 0.3s ease, visibility 0s linear 0s, transform 0.3s ease; /* Show immediately */
         }
 
         /* Placeholder page styles */
@@ -481,6 +515,7 @@
             font-style: italic;
             user-select: none;
             -webkit-user-select: none;
+            background-image: none !important; /* Override page styles */
         }
 
         /* Welcome instruction styles */
@@ -512,6 +547,12 @@
             z-index: 10000;
             justify-content: center;
             align-items: center;
+            opacity: 0; /* Start hidden for transition */
+            transition: opacity 0.3s ease;
+        }
+        .modal.visible { /* Class to show modal */
+             display: flex;
+             opacity: 1;
         }
         .modal-content {
             background-color: #fff;
@@ -521,7 +562,13 @@
             max-width: 400px;
             width: 90%;
             text-align: center;
+            transform: scale(0.95); /* Start slightly smaller */
+            transition: transform 0.3s ease;
         }
+        .modal.visible .modal-content {
+             transform: scale(1); /* Scale in */
+        }
+
         .modal-content h2 {
             font-size: 1.25rem;
             font-weight: 600;
@@ -546,13 +593,13 @@
         .modal-item:hover {
             background-color: #a7f3d0;
             border-color: #34d399;
+            transform: translateY(-2px); /* Slight lift on hover */
         }
         /* Shape previews in modal */
-        .modal-item.shape-circle::before { content: ''; display: block; width: 40px; height: 40px; margin: 0 auto; border-radius: 50%; background-color: #34d399; }
-        .modal-item.shape-square::before { content: ''; display: block; width: 40px; height: 40px; margin: 0 auto; background-color: #34d399; }
-        .modal-item.shape-line::before { content: ''; display: block; width: 40px; height: 4px; margin: 18px auto; background-color: #34d399; }
-        .modal-item.shape-arrow::before { content: ''; display: block; width: 40px; height: 4px; margin: 18px auto; background-color: #34d399; position: relative; }
-        .modal-item.shape-arrow::after { content: ''; position: absolute; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 12px solid #34d399; top: -4px; right: -8px; transform: rotate(45deg); }
+        .modal-item.shape-circle::before { content: ''; display: block; width: 40px; height: 40px; margin: 0 auto 5px; border-radius: 50%; background-color: #34d399; }
+        .modal-item.shape-square::before { content: ''; display: block; width: 40px; height: 40px; margin: 0 auto 5px; background-color: #34d399; }
+        .modal-item.shape-line::before { content: ''; display: block; width: 40px; height: 4px; margin: 18px auto 23px; background-color: #34d399; }
+
         .modal-item.sticker { font-size: 2rem; line-height: 1; }
         .modal-close {
             @apply px-4 py-2 bg-gray-500 text-white rounded-lg shadow-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75 transition duration-200 ease-in-out;
@@ -575,6 +622,7 @@
             @apply px-3 py-1 bg-emerald-500 text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-75 transition duration-200 ease-in-out;
             font-size: 0.8rem;
             flex-shrink: 0; /* Prevent shrinking */
+            min-width: auto; /* Allow icon buttons to be smaller */
         }
         .drawing-controls button:not(:disabled):hover { @apply bg-emerald-600; }
         .drawing-controls button:disabled { @apply opacity-60 cursor-not-allowed bg-emerald-400; }
@@ -591,14 +639,16 @@
             cursor: pointer;
             transition: all 0.2s ease;
             flex-shrink: 0; /* Prevent shrinking in flex container */
+             background-color: #e5e7eb; /* Light gray background */
         }
         .brush-size:hover {
             transform: scale(1.1);
+            background-color: #d1d5db; /* Slightly darker on hover */
         }
         .brush-size::before {
             content: '';
             border-radius: 50%;
-            background-color: #4b5563; /* Dark Gray - Visible on green */
+            background-color: #4b5563; /* Dark Gray - Visible on light background */
             transition: all 0.2s ease;
         }
         .brush-size.small::before { width: 4px; height: 4px; }
@@ -607,6 +657,7 @@
         .brush-size.selected {
             border-color: #fff; /* White border when selected */
             box-shadow: 0 0 0 2px #34d399; /* Green glow */
+            background-color: #a7f3d0; /* Highlight background when selected */
         }
 
         /* Color Palette styles */
@@ -626,7 +677,7 @@
             cursor: pointer;
             border: 2px solid #fff; /* White border */
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            transition: transform 0.1s ease, border-color 0.2s ease;
+            transition: transform 0.1s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             flex-shrink: 0; /* Prevent shrinking */
         }
         .color-swatch:hover {
@@ -635,46 +686,75 @@
         .color-swatch.selected {
             border-color: #34d399; /* Green border when selected */
             box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.5); /* Green glow */
+            transform: scale(1.05); /* Slightly larger when selected */
         }
 
-        /* Highlighter button selected state */
-        #highlighter-button.selected {
+        /* Highlighter/Eraser button selected state */
+        #highlighter-button.selected, #eraser-button.selected {
             background-color: #10b981; /* Darker green when selected */
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* Style for highlighter icon button */
-        #highlighter-button {
+        /* Style for icon buttons in drawing controls */
+        #highlighter-button, #eraser-button {
              @apply p-2; /* Adjust padding for icon */
-             min-width: auto; /* Remove min-width */
         }
-        #highlighter-button i {
-             font-size: 1.2rem; /* Adjust icon size */
+        #highlighter-button i, #eraser-button i {
+             font-size: 1.1rem; /* Adjust icon size */
+             display: block; /* Ensure icon centers properly */
         }
 
 
         /* Responsive adjustments */
+        @media (max-width: 900px) { /* Adjust breakpoint */
+             .controls-container {
+                 gap-x-1; /* Reduce horizontal gap */
+                 padding: 0.5rem;
+             }
+             .control-button, .control-select {
+                 min-width: auto; /* Allow buttons to shrink */
+                 font-size: 0.8rem;
+                 padding: 0.375rem 0.75rem;
+                 padding-right: 1.5rem; /* Adjust padding for arrow on selects */
+             }
+             #add-image-button {
+                 padding: 0.5rem; /* Adjust padding */
+                 padding-right: 0.5rem; /* Reset padding */
+             }
+             #add-image-button svg { width: 1.25em; height: 1.25em; }
+             .drawing-controls {
+                 gap: 0.5rem; /* Reduce gap */
+                 padding: 0.5rem; /* Adjust padding */
+             }
+        }
         @media (max-width: 768px) {
             .notebook-container { max-height: 600px; height: 70vh; }
-            .controls-container { padding: 0.5rem; }
-            .control-button { min-width: 70px; font-size: 0.8rem; padding: 0.375rem 0.75rem; }
-            #add-image-button { padding: 0.375rem; }
-            #add-image-button svg { width: 1.25em; height: 1.25em; }
             .page-content { padding: 1.25rem; }
             .modal-content { padding: 1rem; }
             .modal-grid { grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); }
             .modal-item { padding: 0.5rem; }
             .modal-item.shape-circle::before, .modal-item.shape-square::before { width: 30px; height: 30px; }
-            .modal-item.shape-line::before, .modal-item.shape-arrow::before { width: 30px; margin: 13px auto; }
+            .modal-item.shape-line::before { width: 30px; margin: 13px auto 18px; }
             .modal-item.sticker { font-size: 1.5rem; }
-            .drawing-controls {
-                 justify-content: center; /* Center items when wrapped */
-                 gap: 0.75rem; /* Maintain gap */
-                 padding: 0.5rem; /* Adjust padding */
-            }
-            .brush-size { width: 24px; height: 24px; }
-            .color-swatch { width: 24px; height: 24px; } /* Slightly larger swatches on small screens */
+            .brush-size, .color-swatch { width: 24px; height: 24px; }
+            .tooltip { font-size: 12px; padding: 4px 8px; } /* Smaller tooltips */
         }
+         @media (max-width: 480px) { /* Smaller mobile screens */
+             .controls-container {
+                 justify-content: space-around; /* Spread out controls */
+             }
+             .control-button, .control-select {
+                 padding: 0.3rem 0.5rem;
+                 padding-right: 1.2rem; /* Adjust padding for arrow on selects */
+                 font-size: 0.75rem;
+             }
+             #add-image-button { padding: 0.4rem; padding-right: 0.4rem; }
+             .drawing-controls { justify-content: center; } /* Center drawing tools */
+             #color-palette { margin-right: 0.5rem; gap: 0.5rem; }
+             .brush-size, .color-swatch { width: 22px; height: 22px; }
+             #highlighter-button i, #eraser-button i { font-size: 1rem; }
+         }
+
     </style>
 </head>
 <body class="bg-green-50 flex flex-col justify-center items-center min-h-screen p-4 overflow-hidden">
@@ -695,32 +775,48 @@
     <input type="file" id="image-upload-input" accept="image/*">
 
     <div class="controls-container">
-        <button id="prev-page" class="control-button tooltip-trigger" disabled>
-            <span class="tooltip">Previous Page</span>
+        <button id="prev-page" class="control-button tooltip-trigger" aria-label="Previous Page" disabled>
+            <span class="tooltip">Previous Page (Left Arrow)</span>
             &lt; Prev
         </button>
 
-        <button id="add-image-button" class="tooltip-trigger" title="Add Image from Device" disabled>
+        <button id="add-image-button" class="tooltip-trigger" aria-label="Add Image from Device" title="Add Image from Device" disabled>
             <span class="tooltip">Add Image</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
             </svg>
         </button>
-        <button id="add-shape-button" class="control-button tooltip-trigger" disabled>
+        <button id="add-shape-button" class="control-button tooltip-trigger" aria-label="Add Shape" disabled>
             <span class="tooltip">Add Shape</span>
             Shape
         </button>
-        <button id="add-sticker-button" class="control-button tooltip-trigger" disabled>
+        <button id="add-sticker-button" class="control-button tooltip-trigger" aria-label="Add Sticker" disabled>
             <span class="tooltip">Add Sticker</span>
             Sticker
         </button>
-        <button id="drawing-button" class="control-button tooltip-trigger" disabled>
+        <button id="drawing-button" class="control-button tooltip-trigger" aria-label="Toggle Drawing Mode" disabled>
             <span class="tooltip">Toggle Drawing</span>
             Draw
         </button>
 
-        <button id="next-page" class="control-button tooltip-trigger">
-            <span class="tooltip">Next Page</span>
+        <select id="font-select" class="control-select tooltip-trigger" aria-label="Select Page Font" disabled>
+            <span class="tooltip">Select Page Font</span>
+            <option value="font-kalam">Kalam (Default)</option>
+            <option value="font-caveat">Caveat</option>
+            <option value="font-patrick-hand">Patrick Hand</option>
+            <option value="font-inter">Inter (Sans)</option>
+        </select>
+
+        <select id="page-style-select" class="control-select tooltip-trigger" aria-label="Select Page Style" disabled>
+            <span class="tooltip">Select Page Style</span>
+            <option value="page-style-lined">Lined</option>
+            <option value="page-style-dotted">Dotted</option>
+            <option value="page-style-graph">Graph</option>
+            <option value="page-style-blank">Blank</option>
+        </select>
+
+        <button id="next-page" class="control-button tooltip-trigger" aria-label="Next Page">
+            <span class="tooltip">Next Page (Right Arrow)</span>
             Next &gt;
         </button>
 
@@ -728,26 +824,32 @@
             <div id="color-palette">
                 </div>
 
-            <button id="brush-small" class="brush-size small tooltip-trigger">
+            <button id="brush-small" class="brush-size small tooltip-trigger" aria-label="Small Brush">
                  <span class="tooltip">Small Brush (3px)</span>
             </button>
-            <button id="brush-medium" class="brush-size medium selected tooltip-trigger">
+            <button id="brush-medium" class="brush-size medium selected tooltip-trigger" aria-label="Medium Brush">
                  <span class="tooltip">Medium Brush (6px)</span>
             </button>
-            <button id="brush-large" class="brush-size large selected tooltip-trigger">
+            <button id="brush-large" class="brush-size large tooltip-trigger" aria-label="Large Brush">
                  <span class="tooltip">Large Brush (10px)</span>
             </button>
 
-            <button id="highlighter-button" class="tooltip-trigger">
+            <button id="highlighter-button" class="tooltip-trigger" aria-label="Toggle Highlighter">
                 <span class="tooltip">Toggle Highlighter (20px)</span>
-                <i class="fas fa-highlighter"></i> </button>
+                <i class="fas fa-highlighter"></i>
+            </button>
 
-            <button id="undo-drawing" class="control-button tooltip-trigger" disabled>
+            <button id="eraser-button" class="tooltip-trigger" aria-label="Toggle Eraser">
+                <span class="tooltip">Toggle Eraser (Size Varies)</span>
+                 <i class="fas fa-eraser"></i>
+            </button>
+
+            <button id="undo-drawing" class="control-button tooltip-trigger" aria-label="Undo Last Stroke" disabled>
                 <span class="tooltip">Undo Last Stroke (Ctrl+Z)</span>
                 Undo
             </button>
 
-            <button id="clear-drawing" class="control-button tooltip-trigger">
+            <button id="clear-drawing" class="control-button tooltip-trigger" aria-label="Clear Page Drawing">
                 <span class="tooltip">Clear Page Drawing</span>
                 Clear
             </button>
@@ -759,19 +861,21 @@
     <div id="selector-modal" class="modal">
         <div class="modal-content">
             <h2 id="modal-title">Select an Item</h2>
-            <div id="modal-grid" class="modal-grid"></div>
-            <button id="modal-close" class="modal-close">Close</button>
+            <div id="modal-grid" class="modal-grid">
+                </div>
+            <button id="modal-close" class="modal-close" aria-label="Close Modal">Close</button>
         </div>
     </div>
 
     <div id="page-data-storage">
-        <div class="page-content" data-page-number="0">
-            <img class="saved-drawing" alt="Saved Drawing"> <h2 class="text-xl font-semibold mb-4 text-green-800 opacity-60 pointer-events-none absolute top-4 left-4">Inside Cover</h2>
+        <div class="page-content page-style-blank font-kalam" data-page-number="0">
+            <img class="saved-drawing" alt="Saved Drawing">
+            <h2 class="text-xl font-semibold mb-4 text-green-800 opacity-60 pointer-events-none absolute top-4 left-4">Inside Cover</h2>
             <div class="scrapbook-element scrapbook-text welcome-instructions" style="left: 50px; top: 70px; width: 250px; z-index: 10;" contenteditable="true">
-                Welcome to your notebook! Click Next to start writing, adding images, shapes, stickers, or drawing.
+                Welcome to your notebook! Click Next to start. Use the dropdowns to change page style and font. Save happens automatically!
             </div>
         </div>
-        <div class="page-content" data-page-number="1">
+        <div class="page-content page-style-lined font-kalam" data-page-number="1">
              <img class="saved-drawing" alt="Saved Drawing">
             <h2 class="text-xl font-semibold mb-4 text-green-800 opacity-60 pointer-events-none absolute top-4 left-4">Page 1</h2>
             <div class="scrapbook-element scrapbook-text welcome-instructions" style="left: 50px; top: 70px; width: 250px; z-index: 10;" contenteditable="true">
@@ -783,30 +887,30 @@
             </div>
             <div class="scrapbook-element scrapbook-text first-note" style="left: 50px; top: 180px; width: 200px; z-index: 11;" contenteditable="true">My first note! Click to edit or drag me around.</div>
         </div>
-        <div class="page-content" data-page-number="2">
+        <div class="page-content page-style-lined font-kalam" data-page-number="2">
              <img class="saved-drawing" alt="Saved Drawing">
             <h2 class="text-xl font-semibold mb-4 text-green-800 opacity-60 pointer-events-none absolute top-4 left-4">Page 2</h2>
         </div>
-        <div class="page-content" data-page-number="3">
+        <div class="page-content page-style-dotted font-caveat" data-page-number="3">
              <img class="saved-drawing" alt="Saved Drawing">
             <h2 class="text-xl font-semibold mb-4 text-green-800 opacity-60 pointer-events-none absolute top-4 left-4">Page 3</h2>
             <div class="scrapbook-element scrapbook-image" style="left: 80px; top: 120px; width: 150px; height: 100px; z-index: 12;">
                 <img src="https://placehold.co/150x100/e0e0e0/757575?text=Paste+Image" alt="Placeholder Image" onerror="this.src='https://placehold.co/150x100/e0e0e0/757575?text=Image+Error'">
             </div>
         </div>
-        <div class="page-content" data-page-number="4">
+        <div class="page-content page-style-graph font-patrick-hand" data-page-number="4">
              <img class="saved-drawing" alt="Saved Drawing">
             <h2 class="text-xl font-semibold mb-4 text-green-800 opacity-60 pointer-events-none absolute top-4 left-4">Page 4</h2>
         </div>
-        <div class="page-content" data-page-number="5">
+        <div class="page-content page-style-blank font-inter" data-page-number="5">
              <img class="saved-drawing" alt="Saved Drawing">
             <h2 class="text-xl font-semibold mb-4 text-green-800 opacity-60 pointer-events-none absolute top-4 left-4">Page 5</h2>
         </div>
-        <div class="page-content" data-page-number="6">
+        <div class="page-content page-style-lined font-kalam" data-page-number="6">
              <img class="saved-drawing" alt="Saved Drawing">
             <h2 class="text-xl font-semibold mb-4 text-green-800 opacity-60 pointer-events-none absolute top-4 left-4">Page 6</h2>
         </div>
-        <div class="page-content" data-page-number="7">
+        <div class="page-content page-style-blank font-kalam" data-page-number="7">
              <img class="saved-drawing" alt="Saved Drawing">
             <h2 class="text-xl font-semibold mb-4 text-green-800 opacity-60 pointer-events-none absolute top-4 left-4">Inside Back Cover</h2>
         </div>
@@ -826,29 +930,31 @@
             const addShapeButton = document.getElementById('add-shape-button');
             const addStickerButton = document.getElementById('add-sticker-button');
             const drawingButton = document.getElementById('drawing-button');
+            const fontSelect = document.getElementById('font-select');
+            const pageStyleSelect = document.getElementById('page-style-select');
             const imageUploadInput = document.getElementById('image-upload-input');
             const drawingCanvas = document.getElementById('drawing-canvas');
             const drawingControls = document.getElementById('drawing-controls');
-            // const colorPicker = document.getElementById('color-picker'); // Removed
-            const colorPalette = document.getElementById('color-palette'); // New
+            const colorPalette = document.getElementById('color-palette');
             const brushSmall = document.getElementById('brush-small');
             const brushMedium = document.getElementById('brush-medium');
             const brushLarge = document.getElementById('brush-large');
             const highlighterButton = document.getElementById('highlighter-button');
+            const eraserButton = document.getElementById('eraser-button'); // New Eraser Button
             const undoDrawing = document.getElementById('undo-drawing');
             const clearDrawing = document.getElementById('clear-drawing');
             const selectorModal = document.getElementById('selector-modal');
             const modalTitle = document.getElementById('modal-title');
             const modalGrid = document.getElementById('modal-grid');
             const modalClose = document.getElementById('modal-close');
-            const body = document.body; // Reference to body for cursor style
+            const body = document.body;
 
             // --- State Variables ---
-            const pages = Array.from(pageDataStorage.querySelectorAll('.page-content'))
-                .sort((a, b) => parseInt(a.dataset.pageNumber) - parseInt(b.dataset.pageNumber));
-            const totalPages = pages.length;
+            const notebookStorageKey = 'samsNotebookState_v2'; // Key for local storage (versioned)
+            let pages = []; // Will be loaded from storage or templates
+            let totalPages = 0;
             let currentSpreadIndex = 0;
-            let elementZIndex = 10;
+            let elementZIndex = 10; // Base z-index
             let draggedElement = null;
             let offsetX, offsetY;
             let dragStartX, dragStartY;
@@ -860,47 +966,43 @@
             const animationDuration = 800;
             const baseFontSize = 16;
             const minSize = 30; // Minimum element size
+            let currentFontClass = 'font-kalam'; // Default font
+            let currentPageStyleClass = 'page-style-lined'; // Default page style
 
             // --- Drawing State ---
             let isDrawingMode = false;
             let isDrawingModePending = false;
             let isHighlighterMode = false;
+            let isEraserMode = false; // New Eraser Mode flag
             let drawingContext = drawingCanvas.getContext('2d');
             let isDrawing = false;
             let lastX = 0, lastY = 0;
             const brushSizes = { small: 3, medium: 6, large: 10 };
             const highlighterSize = 20;
+            const eraserBaseSize = 15; // Base size for eraser
             let currentPenSize = brushSizes.medium;
-            let currentBrushSize = currentPenSize;
-            let pageDrawings = {};
+            let currentBrushSize = currentPenSize; // Actual size used (pen, highlighter, or eraser)
+            let pageDrawings = {}; // Store drawing data URLs { pageNum: dataURL }
             let activeDrawingPageNum = null;
-            let currentDrawingStrokes = [];
+            let currentDrawingStrokes = []; // Stores stroke data for undo [{points:[], color, size, alpha, mode}, ...]
             let pageTargetListener = null;
-            let currentColor = '#ffff00'; // Default color (Yellow)
+            let currentColor = '#000000'; // Default drawing color (Black)
 
             // --- Data Definitions ---
             const shapes = [ { id: 'circle', name: 'Circle' }, { id: 'square', name: 'Square' }, { id: 'line', name: 'Line' } ];
-            const stickers = ['😺', '🌟', '🍎', '🚀', '🎉', '💖', '💡', '🐸'];
-            // Define colors for the palette
-            const colors = [
-                '#000000', // Black
-                '#ff0000', // Red
-                '#0000ff', // Blue
-                '#34d399', // Green
-                '#ffff00', // Yellow
-                '#FFA500', // Orange
-                '#FFB6C1', // Light Pink
-                '#ADD8E6', // Light Blue
-                '#98FB98', // Pale Green
-                '#FFFFE0', // Light Yellow
-                '#E6E6FA'  // Lavender
+            const stickers = ['😺', '🌟', '🍎', '🚀', '🎉', '💖', '💡', '🐸', '📚', '✏️']; // Added more stickers
+            const colors = [ // Expanded color palette
+                '#000000', '#4b5563', '#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899',
+                '#ffffff', '#9ca3af', '#fca5a5', '#fdba74', '#fde047', '#bef264', '#86efac', '#6ee7b7', '#67e8f9', '#93c5fd', '#c4b5fd', '#f9a8d4'
             ];
-
+            const fontClasses = ['font-kalam', 'font-caveat', 'font-patrick-hand', 'font-inter'];
+            const pageStyleClasses = ['page-style-lined', 'page-style-dotted', 'page-style-graph', 'page-style-blank'];
 
             // --- Initialization ---
-            setBrushSizeUI(brushSizes.medium, brushMedium);
-            populateColorPalette(); // Populate the color palette
-            updateView();
+            loadNotebookState(); // Load saved state or initialize
+            setBrushSizeUI(brushSizes.medium, brushMedium); // Set initial brush UI
+            populateColorPalette(); // Populate the color palette UI
+            updateView(); // Initial render
 
             // --- Core Functions ---
 
@@ -911,13 +1013,14 @@
                     swatch.classList.add('color-swatch');
                     swatch.style.backgroundColor = color;
                     swatch.dataset.color = color;
-                    swatch.title = color; // Use hex code as tooltip for now
+                    swatch.title = color; // Tooltip
+                    swatch.setAttribute('aria-label', `Select color ${color}`);
                     swatch.addEventListener('click', () => selectColor(color, swatch));
                     colorPalette.appendChild(swatch);
                 });
-                 // Select the default color swatch
-                 const defaultSwatch = colorPalette.querySelector(`[data-color="${currentColor}"]`);
-                 if(defaultSwatch) defaultSwatch.classList.add('selected');
+                // Select the default color swatch
+                const defaultSwatch = colorPalette.querySelector(`[data-color="${currentColor}"]`);
+                if(defaultSwatch) defaultSwatch.classList.add('selected');
             }
 
             function selectColor(color, selectedSwatch) {
@@ -928,236 +1031,474 @@
                  });
                  // Add selected class to the clicked swatch
                  if(selectedSwatch) selectedSwatch.classList.add('selected');
+
+                 // If eraser is active, deactivate it when selecting a color
+                 if (isEraserMode) {
+                     deactivateEraserMode();
+                 }
+                 // If highlighter is active, keep it active but change color
                  if (isDrawingMode) configureDrawingContext(); // Update drawing context immediately
             }
 
-
+            /**
+             * Updates the notebook view based on the currentSpreadIndex.
+             * Handles cover page, regular pages, and placeholder pages.
+             * Attaches listeners to interactive elements on the visible pages.
+             */
             function updateView() {
-                deselectElement();
-                leftPageDisplay.innerHTML = '';
-                rightPageDisplay.innerHTML = '';
-                coverContentDisplay.style.display = 'none';
-                if (isDrawingMode) deactivateDrawingMode(true);
-                drawingCanvas.style.display = 'none';
+                deselectElement(); // Deselect any selected element
+                leftPageDisplay.innerHTML = ''; // Clear left page
+                rightPageDisplay.innerHTML = ''; // Clear right page
+                coverContentDisplay.style.display = 'none'; // Hide cover initially
+
+                // Deactivate drawing mode if active (without saving, as save happens on page turn)
+                if (isDrawingMode) deactivateDrawingMode(false);
+                drawingCanvas.style.display = 'none'; // Hide canvas
+
                 let leftPageContent = null, rightPageContent = null;
                 let leftPageNum = -1, rightPageNum = -1;
-                if (currentSpreadIndex === 0) {
+
+                // Determine which pages to display
+                if (currentSpreadIndex === 0) { // Cover spread
                     leftPageContent = createPlaceholderPage("(Inside Cover)");
-                    rightPageDisplay.appendChild(coverContentDisplay);
+                    rightPageDisplay.appendChild(coverContentDisplay); // Show cover on the right
                     coverContentDisplay.style.display = 'flex';
-                } else {
+                    // Get page 0 data if it exists (for inside cover content)
+                    const insideCoverPageData = pages.find(p => p.pageNumber === 0);
+                    if (insideCoverPageData) {
+                        leftPageContent = createPageElementFromData(insideCoverPageData);
+                    }
+
+                } else { // Regular page spread
                     leftPageNum = (currentSpreadIndex - 1) * 2;
                     rightPageNum = leftPageNum + 1;
-                    leftPageContent = (leftPageNum >= 0 && leftPageNum < totalPages) ? pages[leftPageNum].cloneNode(true) : createPlaceholderPage("(Blank)");
-                    rightPageContent = (rightPageNum >= 0 && rightPageNum < totalPages) ? pages[rightPageNum].cloneNode(true) : createPlaceholderPage("(End)");
+
+                    const leftPageData = pages.find(p => p.pageNumber === leftPageNum);
+                    const rightPageData = pages.find(p => p.pageNumber === rightPageNum);
+
+                    leftPageContent = leftPageData ? createPageElementFromData(leftPageData) : createPlaceholderPage("(Blank)");
+                    rightPageContent = rightPageData ? createPageElementFromData(rightPageData) : createPlaceholderPage("(End)");
                 }
+
+                // Append content to display areas and attach listeners
                 if (leftPageContent) {
                     leftPageDisplay.appendChild(leftPageContent);
                     if (leftPageNum !== -1 && !leftPageContent.classList.contains('placeholder-page')) {
                         attachScrapbookListeners(leftPageContent);
-                        loadAndDisplaySavedDrawing(leftPageContent, leftPageNum);
+                        loadAndDisplaySavedDrawing(leftPageContent, leftPageNum); // Display saved drawing
                     }
                 }
-                if (rightPageContent && currentSpreadIndex !== 0) {
+                if (rightPageContent && currentSpreadIndex !== 0) { // Don't add right content on cover spread
                     rightPageDisplay.appendChild(rightPageContent);
                      if (rightPageNum !== -1 && !rightPageContent.classList.contains('placeholder-page')) {
                         attachScrapbookListeners(rightPageContent);
-                        loadAndDisplaySavedDrawing(rightPageContent, rightPageNum);
+                        loadAndDisplaySavedDrawing(rightPageContent, rightPageNum); // Display saved drawing
                     }
                 }
-                updateButtonStates();
+
+                updateButtonStates(); // Update control button enabled/disabled states
+                updatePageStyleAndFontControls(); // Sync dropdowns with current page styles
             }
 
+            /**
+             * Creates a placeholder page element (for blank pages or covers).
+             * @param {string} text - Text to display on the placeholder.
+             * @returns {HTMLElement} The placeholder page element.
+             */
             function createPlaceholderPage(text) {
                 const placeholder = document.createElement('div');
-                placeholder.classList.add('page-content', 'placeholder-page');
+                placeholder.classList.add('page-content', 'placeholder-page'); // Basic classes
                 placeholder.textContent = text;
+                // Add a dummy img element for consistency, though it won't be used
                 const img = document.createElement('img');
                 img.classList.add('saved-drawing');
-                img.alt = "Saved Drawing Area";
+                img.alt = "Drawing Area";
                 placeholder.appendChild(img);
                 return placeholder;
             }
 
+            /**
+             * Creates a page element from stored page data.
+             * @param {object} pageData - The data object for the page.
+             * @returns {HTMLElement} The page content element.
+             */
+             function createPageElementFromData(pageData) {
+                const pageElement = document.createElement('div');
+                pageElement.classList.add('page-content');
+                pageElement.dataset.pageNumber = pageData.pageNumber;
+
+                // Apply saved style and font
+                pageStyleClasses.forEach(cls => pageElement.classList.toggle(cls, cls === pageData.styleClass));
+                fontClasses.forEach(cls => pageElement.classList.toggle(cls, cls === pageData.fontClass));
+
+                // Add saved drawing image placeholder
+                const img = document.createElement('img');
+                img.classList.add('saved-drawing');
+                img.alt = "Saved Drawing";
+                pageElement.appendChild(img);
+
+                // Add page number title (optional, could be styled differently)
+                 const title = document.createElement('h2');
+                 title.classList.add('text-xl', 'font-semibold', 'mb-4', 'text-green-800', 'opacity-60', 'pointer-events-none', 'absolute', 'top-4', 'left-4');
+                 title.textContent = `Page ${pageData.pageNumber}`;
+                 if (pageData.pageNumber === 0) title.textContent = "Inside Cover";
+                 if (pageData.pageNumber === totalPages -1) title.textContent = "Inside Back Cover";
+                 pageElement.appendChild(title);
+
+
+                // Recreate scrapbook elements
+                pageData.elements.forEach(elementData => {
+                    const element = createScrapbookElementFromData(elementData);
+                    if (element) {
+                        pageElement.appendChild(element);
+                    }
+                });
+
+                return pageElement;
+            }
+
+            /**
+             * Creates a scrapbook element (text, image, shape, sticker) from saved data.
+             * @param {object} elementData - The data for the element.
+             * @returns {HTMLElement|null} The created element or null if data is invalid.
+             */
+            function createScrapbookElementFromData(elementData) {
+                let element = null;
+                switch (elementData.type) {
+                    case 'text':
+                        element = document.createElement('div');
+                        element.classList.add('scrapbook-element', 'scrapbook-text');
+                        element.setAttribute('contenteditable', 'true');
+                        element.innerHTML = elementData.content; // Use innerHTML to preserve potential formatting
+                        break;
+                    case 'image':
+                        element = document.createElement('div');
+                        element.classList.add('scrapbook-element', 'scrapbook-image');
+                        const img = document.createElement('img');
+                        img.src = elementData.src;
+                        img.alt = elementData.alt || "User Image";
+                        img.onerror = () => { // Basic error handling
+                            img.src = `https://placehold.co/${parseInt(elementData.width) || 100}x${parseInt(elementData.height) || 100}/fecaca/991b1b?text=Load\\nError`;
+                            img.alt = "Image load error";
+                        };
+                        element.appendChild(img);
+                        break;
+                    case 'shape':
+                        element = document.createElement('div');
+                        element.classList.add('scrapbook-element', 'scrapbook-shape', elementData.shapeType);
+                        break;
+                    case 'sticker':
+                         element = document.createElement('div');
+                         element.classList.add('scrapbook-element', 'scrapbook-sticker');
+                         element.textContent = elementData.content;
+                         break;
+                    default:
+                        console.warn("Unknown scrapbook element type in saved data:", elementData.type);
+                        return null;
+                }
+
+                // Apply common styles (position, size, z-index)
+                element.style.position = 'absolute';
+                element.style.left = elementData.left;
+                element.style.top = elementData.top;
+                element.style.width = elementData.width;
+                element.style.height = elementData.height;
+                element.style.zIndex = elementData.zIndex;
+                if (elementData.fontSize && element.classList.contains('scrapbook-text')) {
+                    element.style.fontSize = elementData.fontSize;
+                }
+
+                // Update global z-index counter
+                elementZIndex = Math.max(elementZIndex, parseInt(elementData.zIndex) || 10);
+
+                return element;
+            }
+
+
+            /**
+             * Loads the saved drawing onto the page's drawing image placeholder.
+             * @param {HTMLElement} pageElement - The page content element.
+             * @param {number} pageNum - The page number.
+             */
             function loadAndDisplaySavedDrawing(pageElement, pageNum) {
                 const savedDrawingImg = pageElement.querySelector('.saved-drawing');
                 if (!savedDrawingImg) return;
-                const savedDataUrl = pageDrawings[pageNum];
+
+                const savedDataUrl = pageDrawings[pageNum]; // Get from loaded state
                 savedDrawingImg.src = savedDataUrl || '';
                 savedDrawingImg.style.display = savedDataUrl ? 'block' : 'none';
             }
 
+            /**
+             * Attaches necessary event listeners to a page element and its scrapbook items.
+             * @param {HTMLElement} pageElement - The page content element.
+             */
             function attachScrapbookListeners(pageElement) {
                 if (!pageElement || pageElement.classList.contains('placeholder-page')) return;
-                let maxZ = elementZIndex;
+
+                // Attach listeners to existing elements on the page
                 pageElement.querySelectorAll('.scrapbook-element').forEach(el => {
-                    const currentZ = parseInt(el.style.zIndex);
-                    if (!isNaN(currentZ)) maxZ = Math.max(maxZ, currentZ);
                     if (!el.dataset.interactive) makeElementInteractive(el);
                 });
-                elementZIndex = maxZ;
+
+                // Listen for double-clicks to add new text elements
                 pageElement.addEventListener('dblclick', handlePageDoubleClick);
+                // Listen for paste events
                 pageElement.addEventListener('paste', handlePaste);
+                // Listen for changes within contenteditable elements
+                pageElement.addEventListener('input', handleElementInput);
+                 // Listen for focusout to save changes
+                pageElement.addEventListener('focusout', handleElementFocusOut);
             }
 
+            /**
+             * Handles double-clicking on the page to add a new text element.
+             * @param {MouseEvent} e - The double-click event.
+             */
             function handlePageDoubleClick(e) {
                 const contentArea = e.currentTarget;
+                // Ignore if clicking on an existing element or placeholder
                 if (e.target !== contentArea || contentArea.classList.contains('placeholder-page') || e.target.closest('.scrapbook-element')) return;
-                deselectElement();
+
+                deselectElement(); // Deselect any currently selected element
+
                 const textElement = document.createElement('div');
                 textElement.classList.add('scrapbook-element', 'scrapbook-text');
                 textElement.setAttribute('contenteditable', 'true');
                 textElement.textContent = 'Type here...';
+
+                // Calculate position based on click location and scroll offset
                 const rect = contentArea.getBoundingClientRect();
-                const scrollX = contentArea.scrollLeft; const scrollY = contentArea.scrollTop;
-                const x = e.clientX - rect.left + scrollX; const y = e.clientY - rect.top + scrollY;
+                const scrollX = contentArea.scrollLeft;
+                const scrollY = contentArea.scrollTop;
+                const x = e.clientX - rect.left + scrollX;
+                const y = e.clientY - rect.top + scrollY;
+
                 textElement.style.position = 'absolute';
-                textElement.style.left = `${Math.max(0, x - 25)}px`;
+                textElement.style.left = `${Math.max(0, x - 50)}px`; // Adjust initial position
                 textElement.style.top = `${Math.max(0, y - 15)}px`;
-                textElement.style.width = '150px';
-                elementZIndex++; textElement.style.zIndex = elementZIndex;
+                textElement.style.width = '150px'; // Initial width
+                elementZIndex++; textElement.style.zIndex = elementZIndex; // Increment and set z-index
+
                 contentArea.appendChild(textElement);
-                makeElementInteractive(textElement);
-                selectElement(textElement);
+                makeElementInteractive(textElement); // Make it draggable/resizable
+                selectElement(textElement); // Select the new element
+
+                // Focus and select the default text
                 textElement.focus();
-                const selection = window.getSelection(); const range = document.createRange();
+                const selection = window.getSelection();
+                const range = document.createRange();
                 range.selectNodeContents(textElement);
-                selection.removeAllRanges(); selection.addRange(range);
+                selection.removeAllRanges();
+                selection.addRange(range);
+
+                saveNotebookState(); // Save state after adding element
             }
 
+            /**
+             * Handles pasting content (text or image) onto the page.
+             * @param {ClipboardEvent} e - The paste event.
+             */
             function handlePaste(e) {
                 const contentArea = e.currentTarget;
-                if (contentArea.classList.contains('placeholder-page')) return;
-                e.preventDefault();
+                if (contentArea.classList.contains('placeholder-page')) return; // Ignore on placeholders
+
+                e.preventDefault(); // Prevent default paste action
                 const items = (e.clipboardData || window.clipboardData).items;
+
                 for (const item of items) {
-                    if (item.type.indexOf('image') !== -1) {
-                        const blob = item.getAsFile(); const reader = new FileReader();
+                    if (item.type.indexOf('image') !== -1) { // Paste Image
+                        const blob = item.getAsFile();
+                        const reader = new FileReader();
                         reader.onload = (event) => addImageElement(event.target.result, contentArea);
-                        reader.readAsDataURL(blob); break;
-                    } else if (item.type === 'text/plain') {
+                        reader.readAsDataURL(blob);
+                        break; // Handle first image found
+                    } else if (item.type === 'text/plain') { // Paste Text
                         item.getAsString(text => {
                             deselectElement();
                             const textElement = document.createElement('div');
                             textElement.classList.add('scrapbook-element', 'scrapbook-text');
                             textElement.setAttribute('contenteditable', 'true');
-                            textElement.textContent = text;
+                            textElement.textContent = text; // Set pasted text
+
+                            // Position the new text element slightly offset
                             const rect = contentArea.getBoundingClientRect();
-                            const scrollX = contentArea.scrollLeft; const scrollY = contentArea.scrollTop;
+                            const scrollX = contentArea.scrollLeft;
+                            const scrollY = contentArea.scrollTop;
                             const pasteX = scrollX + rect.width * 0.1 + Math.random() * 20;
                             const pasteY = scrollY + rect.height * 0.1 + Math.random() * 20;
+
                             textElement.style.position = 'absolute';
-                            textElement.style.left = `${pasteX}px`; textElement.style.top = `${pasteY}px`;
-                            textElement.style.width = '150px';
+                            textElement.style.left = `${pasteX}px`;
+                            textElement.style.top = `${pasteY}px`;
+                            textElement.style.width = '150px'; // Initial width
                             elementZIndex++; textElement.style.zIndex = elementZIndex;
+
                             contentArea.appendChild(textElement);
-                            makeElementInteractive(textElement); selectElement(textElement);
-                        }); break;
+                            makeElementInteractive(textElement);
+                            selectElement(textElement);
+                            saveNotebookState(); // Save after adding
+                        });
+                        break; // Handle first text found
                     }
                 }
             }
 
+            /**
+             * Adds delete and resize controls to a scrapbook element.
+             * @param {HTMLElement} element - The scrapbook element.
+             */
             function addControls(element) {
+                // Prevent adding controls multiple times
                 if (element.querySelector('.delete-button')) return;
+
+                // Delete Button
                 const deleteBtn = document.createElement('div');
-                deleteBtn.classList.add('delete-button'); deleteBtn.innerHTML = '×';
-                deleteBtn.title = 'Delete Element';
+                deleteBtn.classList.add('delete-button');
+                deleteBtn.innerHTML = '×'; // Multiplication sign for 'X'
+                deleteBtn.title = 'Delete Element (Del/Backspace)';
+                deleteBtn.setAttribute('aria-label', 'Delete Element');
                 deleteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); element.remove();
+                    e.stopPropagation(); // Prevent triggering element selection
+                    element.remove();
                     if (selectedElement === element) selectedElement = null;
+                    saveNotebookState(); // Save after deleting
                 });
                 element.appendChild(deleteBtn);
+
+                // Resize Handles (nw, ne, sw, se)
                 ['nw', 'ne', 'sw', 'se'].forEach(handleType => {
                     const handle = document.createElement('div');
                     handle.classList.add('resize-handle', handleType);
+                    handle.setAttribute('aria-label', `Resize ${handleType}`);
                     handle.addEventListener('mousedown', onResizeHandleMouseDown);
+                    // Add touchstart for touch devices
+                    handle.addEventListener('touchstart', onResizeHandleMouseDown, { passive: false });
                     element.appendChild(handle);
                 });
             }
 
+            /**
+             * Makes a scrapbook element interactive (draggable, selectable, adds controls).
+             * @param {HTMLElement} element - The scrapbook element.
+             */
             function makeElementInteractive(element) {
-                if (element.dataset.interactive) return;
+                if (element.dataset.interactive) return; // Already interactive
                 element.dataset.interactive = 'true';
-                addControls(element);
-                // Modified: Allow dragging for all scrapbook elements, including text.
-                // The user-select: text CSS property on .scrapbook-text allows text selection.
+
+                addControls(element); // Add delete/resize handles
+
+                // Add mousedown listener for dragging/selection
                 element.addEventListener('mousedown', onElementMouseDown);
+                // Add touchstart listener for dragging/selection on touch devices
+                element.addEventListener('touchstart', onElementMouseDown, { passive: false });
+
+
+                // Prevent default image dragging behavior
                 const img = element.querySelector('img');
                 if (img) img.ondragstart = () => false;
             }
 
+            /**
+             * Handles mousedown/touchstart on a scrapbook element to initiate dragging or selection.
+             * @param {MouseEvent|TouchEvent} e - The event object.
+             */
             function onElementMouseDown(e) {
-                // Check if the click is on a resize handle or delete button, or if it's not the left mouse button
-                if (e.button !== 0 || e.target.classList.contains('resize-handle') || e.target.classList.contains('delete-button')) {
-                     return;
+                // Ignore if not left mouse button (for mouse events)
+                if (e.type === 'mousedown' && e.button !== 0) return;
+                // Ignore if clicking on controls
+                if (e.target.classList.contains('resize-handle') || e.target.classList.contains('delete-button')) return;
+
+                // Allow text selection within contenteditable elements without starting drag immediately
+                if (e.target.closest('[contenteditable="true"]')) {
+                    // If the target *is* the contenteditable element itself, prepare for potential drag
+                    if (e.target === e.currentTarget) {
+                       // Don't prevent default text selection behavior yet
+                    } else {
+                        // Clicked inside the contenteditable, likely for editing, so don't drag
+                        return;
+                    }
+                } else {
+                     e.preventDefault(); // Prevent default only if not clicking text for selection
                 }
-                // Allow dragging for all scrapbook elements.
-                // The user-select: text CSS property on .scrapbook-text handles text selection intent.
+
+
                 const element = e.currentTarget;
-                selectElement(element);
-                draggedElement = element;
+                selectElement(element); // Select the element
+
+                draggedElement = element; // Set the element to be dragged
+
+                // Calculate initial offset from mouse/touch position to element's top-left corner
                 const rect = draggedElement.getBoundingClientRect();
-                offsetX = e.clientX - rect.left;
-                offsetY = e.clientY - rect.top;
-                dragStartX = e.clientX;
-                dragStartY = e.clientY;
+                const touch = e.type === 'touchstart' ? e.touches[0] : e;
+                offsetX = touch.clientX - rect.left;
+                offsetY = touch.clientY - rect.top;
+                dragStartX = touch.clientX; // Store starting mouse/touch position
+                dragStartY = touch.clientY;
+
+                // Add listeners for move and up/end events
                 document.addEventListener('mousemove', onDragMouseMove);
                 document.addEventListener('mouseup', onDragMouseUp);
+                document.addEventListener('touchmove', onDragMouseMove, { passive: false }); // passive: false for preventDefault
+                document.addEventListener('touchend', onDragMouseUp);
             }
 
             /**
-             * Handles mouse movement during element dragging.
+             * Handles mousemove/touchmove during element dragging.
              * Moves the element and handles transferring between pages.
              * Adds 'dragging' class for visual feedback and z-index adjustment.
-             * @param {MouseEvent} e - The mousemove event.
+             * @param {MouseEvent|TouchEvent} e - The event object.
              */
             function onDragMouseMove(e) {
                 if (!draggedElement) return;
-                const dx = e.clientX - dragStartX; const dy = e.clientY - dragStartY;
 
-                // Start dragging only after a small threshold to avoid accidental drags
+                // Prevent default scrolling/actions during drag
+                if (e.cancelable) e.preventDefault();
+
+                const touch = e.type === 'touchmove' ? e.touches[0] : e;
+                const dx = touch.clientX - dragStartX;
+                const dy = touch.clientY - dragStartY;
+
+                // Start dragging visually only after a small movement threshold
                 if (!draggedElement.classList.contains('dragging') && Math.sqrt(dx*dx + dy*dy) > 5) {
                     draggedElement.classList.add('dragging');
                     // Temporarily increase z-index while dragging
                     draggedElement.style.zIndex = 9999;
                 }
 
+                // If dragging has started visually
                 if (draggedElement.classList.contains('dragging')) {
-                    e.preventDefault(); // Prevent default browser drag behavior (like image dragging)
-
                     let parent = draggedElement.parentElement;
                     const notebookRect = notebook.getBoundingClientRect();
                     const leftPageRect = leftPageDisplay.getBoundingClientRect();
                     const rightPageRect = rightPageDisplay.getBoundingClientRect();
 
                     let targetPage = parent; // Assume staying on the same page initially
-                    const mouseX = e.clientX;
-                    const mouseY = e.clientY;
+                    const mouseX = touch.clientX;
+                    const mouseY = touch.clientY;
 
                     const leftPageContentEl = leftPageDisplay.querySelector('.page-content:not(.placeholder-page)');
                     const rightPageContentEl = rightPageDisplay.querySelector('.page-content:not(.placeholder-page)');
 
-                    // Check if mouse is over the left or right page content area
+                    // Check if mouse is over the valid content area of the left or right page
                     const isOverLeftPage = leftPageContentEl && mouseX >= leftPageRect.left && mouseX <= leftPageRect.right && mouseY >= notebookRect.top && mouseY <= notebookRect.bottom;
                     const isOverRightPage = rightPageContentEl && mouseX >= rightPageRect.left && mouseX <= rightPageRect.right && mouseY >= notebookRect.top && mouseY <= notebookRect.bottom;
 
-                    // Determine if the element should move to the other page
+                    // Determine if the element should move to the other visible page
                     if (isOverLeftPage && parent === rightPageContentEl) {
                         targetPage = leftPageContentEl;
                     } else if (isOverRightPage && parent === leftPageContentEl) {
                         targetPage = rightPageContentEl;
                     }
 
-                    // If the target page is different, move the element
-                    if (targetPage !== parent) {
+                    // If the target page is different and valid, move the element
+                    if (targetPage && targetPage !== parent && !targetPage.classList.contains('placeholder-page')) {
                         const oldParentRect = parent.getBoundingClientRect();
                         const newParentRect = targetPage.getBoundingClientRect();
 
-                        // Calculate the new position relative to the new parent
-                        // Need to account for the parent's position and scroll offset
+                        // Calculate the new position relative to the new parent, accounting for scroll
                         const currentX = parseFloat(draggedElement.style.left) || 0;
                         const currentY = parseFloat(draggedElement.style.top) || 0;
-
                         let newX = currentX + (oldParentRect.left - newParentRect.left) + parent.scrollLeft - targetPage.scrollLeft;
                         let newY = currentY + (oldParentRect.top - newParentRect.top) + parent.scrollTop - targetPage.scrollTop;
 
@@ -1165,19 +1506,25 @@
                         targetPage.appendChild(draggedElement);
                         parent = targetPage; // Update parent reference
 
-                        // Ensure the element stays within the new parent's bounds
+                        // Ensure the element stays within the new parent's bounds after moving
                         newX = Math.max(0, Math.min(newX, parent.scrollWidth - draggedElement.offsetWidth));
                         newY = Math.max(0, Math.min(newY, parent.scrollHeight - draggedElement.offsetHeight));
 
-                        // Apply the new position
                         draggedElement.style.left = `${newX}px`;
                         draggedElement.style.top = `${newY}px`;
 
-                    } else {
-                        // If staying on the same page, update position based on mouse movement
+                        // Update start positions relative to the new parent for continued dragging
+                        dragStartX = touch.clientX;
+                        dragStartY = touch.clientY;
+                        offsetX = touch.clientX - newParentRect.left - newX + parent.scrollLeft;
+                        offsetY = touch.clientY - newParentRect.top - newY + parent.scrollTop;
+
+
+                    } else if (parent && !parent.classList.contains('placeholder-page')) {
+                        // If staying on the same page, update position based on mouse/touch movement
                         const parentRect = parent.getBoundingClientRect();
-                        let x = e.clientX - parentRect.left - offsetX + parent.scrollLeft;
-                        let y = e.clientY - parentRect.top - offsetY + parent.scrollTop;
+                        let x = touch.clientX - parentRect.left - offsetX + parent.scrollLeft;
+                        let y = touch.clientY - parentRect.top - offsetY + parent.scrollTop;
 
                         // Ensure the element stays within the current parent's bounds
                         x = Math.max(0, Math.min(x, parent.scrollWidth - draggedElement.offsetWidth));
@@ -1189,100 +1536,120 @@
                 }
             }
 
+            /**
+             * Handles mouseup/touchend after dragging an element.
+             * Finalizes the element's position and z-index.
+             * @param {MouseEvent|TouchEvent} e - The event object.
+             */
             function onDragMouseUp(e) {
                 if (!draggedElement) return;
 
                 const wasDragging = draggedElement.classList.contains('dragging');
+                draggedElement.classList.remove('dragging'); // Remove dragging class
 
-                // Remove dragging class
-                draggedElement.classList.remove('dragging');
-
-                // Reset z-index after dragging, but keep selected element on top
+                // Reset z-index after dragging
                 if (wasDragging) {
-                    elementZIndex++; // Increment z-index for the dropped element
-                    draggedElement.style.zIndex = elementZIndex;
+                    elementZIndex++; // Increment global z-index
+                    draggedElement.style.zIndex = elementZIndex; // Assign new highest z-index
+                    saveNotebookState(); // Save state after drag completes
                 } else {
-                     // If it was just a click (not a drag), keep the selected z-index or reset
+                    // If it was just a click (not a drag), ensure the selected element stays on top
                      if (selectedElement === draggedElement) {
-                         // Keep the elevated z-index if it's still selected
-                          draggedElement.style.zIndex = parseInt(draggedElement.style.zIndex || 1000);
-                     } else {
-                         // Otherwise, reset to a normal z-index range
-                         draggedElement.style.zIndex = Math.max(10, parseInt(draggedElement.style.zIndex || 10) - 500);
+                         // Ensure the selected element has a high z-index relative to others
+                         if (parseInt(draggedElement.style.zIndex) < elementZIndex) {
+                              elementZIndex++;
+                              draggedElement.style.zIndex = elementZIndex;
+                         }
                      }
                 }
-
 
                 // Clear the dragged element reference
                 draggedElement = null;
 
-                // Remove event listeners
+                // Remove temporary event listeners from the document
                 document.removeEventListener('mousemove', onDragMouseMove);
                 document.removeEventListener('mouseup', onDragMouseUp);
+                document.removeEventListener('touchmove', onDragMouseMove);
+                document.removeEventListener('touchend', onDragMouseUp);
             }
 
+            /**
+             * Handles mousedown/touchstart on a resize handle to initiate resizing.
+             * @param {MouseEvent|TouchEvent} e - The event object.
+             */
             function onResizeHandleMouseDown(e) {
-                e.stopPropagation(); e.preventDefault();
+                e.stopPropagation(); // Prevent triggering element drag
+                if (e.cancelable) e.preventDefault(); // Prevent default actions like scrolling
+
                 resizingElement = e.target.closest('.scrapbook-element');
                 if (!resizingElement) return;
-                resizeHandle = e.target; const img = resizingElement.querySelector('img');
-                startX = e.clientX; startY = e.clientY;
-                startWidth = resizingElement.offsetWidth; startHeight = resizingElement.offsetHeight;
+
+                resizeHandle = e.target; // The specific handle clicked (e.g., 'nw', 'se')
+                const img = resizingElement.querySelector('img'); // Check if it's an image
+
+                // Store initial state for calculations
+                const touch = e.type === 'touchstart' ? e.touches[0] : e;
+                startX = touch.clientX;
+                startY = touch.clientY;
+                startWidth = resizingElement.offsetWidth;
+                startHeight = resizingElement.offsetHeight;
                 startFontSize = resizingElement.classList.contains('scrapbook-text') ? parseFloat(window.getComputedStyle(resizingElement).fontSize) : baseFontSize;
                 aspectRatio = img ? img.naturalWidth / img.naturalHeight : (startWidth / startHeight);
-                if (isNaN(aspectRatio) || aspectRatio <= 0) aspectRatio = 1;
+                if (isNaN(aspectRatio) || aspectRatio <= 0) aspectRatio = 1; // Default aspect ratio
+
+                // Add listeners for move and up/end events
                 document.addEventListener('mousemove', onResizeMouseMove);
                 document.addEventListener('mouseup', onResizeMouseUp);
+                document.addEventListener('touchmove', onResizeMouseMove, { passive: false });
+                document.addEventListener('touchend', onResizeMouseUp);
             }
 
-           /**
-             * Handles mouse movement during element resizing.
+            /**
+             * Handles mousemove/touchmove during element resizing.
              * Adjusts element dimensions and position based on handle dragged.
-             * Maintains aspect ratio for images.
-             * Scales font size for text elements.
-             * **FIXED**: Corrected position calculation for nw/ne handles.
-             * @param {MouseEvent} e - The mousemove event.
+             * Maintains aspect ratio for images and scales font size for text.
+             * @param {MouseEvent|TouchEvent} e - The event object.
              */
-           function onResizeMouseMove(e) {
-                if (!resizingElement || !resizeHandle) return; e.preventDefault();
-                const dx = e.clientX - startX; const dy = e.clientY - startY;
+            function onResizeMouseMove(e) {
+                if (!resizingElement || !resizeHandle) return;
+                if (e.cancelable) e.preventDefault(); // Prevent scrolling
+
+                const touch = e.type === 'touchmove' ? e.touches[0] : e;
+                const dx = touch.clientX - startX; // Change in X
+                const dy = touch.clientY - startY; // Change in Y
+
                 const parent = resizingElement.parentElement; if (!parent) return;
-                const parentWidth = parent.scrollWidth; const parentHeight = parent.scrollHeight;
+                const parentWidth = parent.scrollWidth;
+                const parentHeight = parent.scrollHeight;
                 let originalLeft = parseFloat(resizingElement.style.left || 0);
                 let originalTop = parseFloat(resizingElement.style.top || 0);
+
                 let newWidth = startWidth; let newHeight = startHeight;
                 let newLeft = originalLeft; let newTop = originalTop;
+
                 const isImage = resizingElement.classList.contains('scrapbook-image');
                 const isText = resizingElement.classList.contains('scrapbook-text');
                 const isLine = resizingElement.classList.contains('scrapbook-shape') && resizingElement.classList.contains('line');
 
-                // Calculate new dimensions based on handle and mouse delta
+                // Calculate new dimensions based on handle type and mouse delta
                 if (resizeHandle.classList.contains('se')) { // Bottom-right
                     newWidth = startWidth + dx;
                     newHeight = isImage ? newWidth / aspectRatio : (isLine ? startHeight : startHeight + dy);
                 } else if (resizeHandle.classList.contains('sw')) { // Bottom-left
                     newWidth = startWidth - dx;
                     newHeight = isImage ? newWidth / aspectRatio : (isLine ? startHeight : startHeight + dy);
-                    // Left changes based on width change
-                    // newLeft = originalLeft + dx; // Old incorrect way
                 } else if (resizeHandle.classList.contains('ne')) { // Top-right
                     newWidth = startWidth + dx;
                     newHeight = isImage ? newWidth / aspectRatio : (isLine ? startHeight : startHeight - dy);
-                    // Top changes based on height change
-                    // newTop = originalTop + dy; // Old incorrect way
                 } else if (resizeHandle.classList.contains('nw')) { // Top-left
                     newWidth = startWidth - dx;
                     newHeight = isImage ? newWidth / aspectRatio : (isLine ? startHeight : startHeight - dy);
-                    // Both Left and Top change
-                    // newLeft = originalLeft + dx; // Old incorrect way
-                    // newTop = originalTop + dy; // Old incorrect way
                 }
 
                 // Enforce minimum size BEFORE calculating position changes for nw/ne/sw
                 newWidth = Math.max(minSize, newWidth);
-                newHeight = isLine ? startHeight : Math.max(minSize, newHeight);
+                newHeight = isLine ? startHeight : Math.max(minSize, newHeight); // Keep line height fixed unless resizing vertically
 
-                // --- POSITION FIX ---
                 // Calculate position changes based on the *actual* change in dimensions
                 if (resizeHandle.classList.contains('nw')) {
                     newLeft = originalLeft + (startWidth - newWidth);
@@ -1296,58 +1663,38 @@
                 }
                 // For 'se', newLeft and newTop remain originalLeft/Top
 
-                // --- BOUNDARY CHECKS ---
-                // Check if calculated position/size goes out of bounds and adjust
-                if (newLeft < 0) {
-                    newWidth += newLeft; // Reduce width by the amount it went negative
-                    newLeft = 0;
-                }
-                if (newTop < 0) {
-                    newHeight += newTop; // Reduce height by the amount it went negative
-                    newTop = 0;
-                }
-                if (newLeft + newWidth > parentWidth) {
-                    newWidth = parentWidth - newLeft;
-                }
-                if (newTop + newHeight > parentHeight) {
-                    newHeight = parentHeight - newTop;
-                }
+                // Boundary checks: Ensure element stays within parent bounds
+                if (newLeft < 0) { newWidth += newLeft; newLeft = 0; }
+                if (newTop < 0) { newHeight += newTop; newTop = 0; }
+                if (newLeft + newWidth > parentWidth) { newWidth = parentWidth - newLeft; }
+                if (newTop + newHeight > parentHeight) { newHeight = parentHeight - newTop; }
 
                 // Re-enforce minimum size after boundary adjustments
                 newWidth = Math.max(minSize, newWidth);
                 newHeight = isLine ? startHeight : Math.max(minSize, newHeight);
 
-                // --- ASPECT RATIO ADJUSTMENT (if needed after boundary checks) ---
+                // Aspect Ratio Adjustment (if needed after boundary checks for images)
                 if (isImage) {
                     const expectedHeight = newWidth / aspectRatio;
                     const expectedWidth = newHeight * aspectRatio;
-
-                    // If the aspect ratio is off significantly after boundary checks,
-                    // adjust the *other* dimension and potentially the position again.
-                    // Prioritize keeping the element within bounds.
-                    if (Math.abs(expectedHeight - newHeight) > 1) { // Height differs from expected
-                        if (expectedHeight < newHeight) { // Width was likely limited by boundary
+                    // Adjust the dimension that deviated most from the aspect ratio due to boundary collision
+                    if (Math.abs(expectedHeight - newHeight) > 1) {
+                        if (expectedHeight < newHeight) { // Width was likely limited
                              newHeight = expectedHeight;
-                             if (resizeHandle.classList.contains('ne') || resizeHandle.classList.contains('nw')) {
-                                 newTop = originalTop + (startHeight - newHeight); // Recalculate top
-                             }
-                        } else { // Height was likely limited by boundary
+                             if (resizeHandle.classList.contains('ne') || resizeHandle.classList.contains('nw')) newTop = originalTop + (startHeight - newHeight);
+                        } else { // Height was likely limited
                              newWidth = expectedWidth;
-                              if (resizeHandle.classList.contains('sw') || resizeHandle.classList.contains('nw')) {
-                                 newLeft = originalLeft + (startWidth - newWidth); // Recalculate left
-                             }
+                              if (resizeHandle.classList.contains('sw') || resizeHandle.classList.contains('nw')) newLeft = originalLeft + (startWidth - newWidth);
                         }
                     }
-                     // Re-check bounds after aspect ratio adjustment
+                     // Final boundary and min size check after aspect ratio adjustment
                      if (newLeft < 0) { newWidth += newLeft; newLeft = 0; }
                      if (newTop < 0) { newHeight += newTop; newTop = 0; }
                      if (newLeft + newWidth > parentWidth) { newWidth = parentWidth - newLeft; }
                      if (newTop + newHeight > parentHeight) { newHeight = parentHeight - newTop; }
-                     // Final min size check
                      newWidth = Math.max(minSize, newWidth);
                      newHeight = Math.max(minSize, newHeight);
                 }
-
 
                 // Apply final calculated styles
                 resizingElement.style.width = `${newWidth}px`;
@@ -1355,45 +1702,71 @@
                 resizingElement.style.left = `${newLeft}px`;
                 resizingElement.style.top = `${newTop}px`;
 
-                // Scale font size for text elements
+                // Scale font size for text elements proportionally
                 if (isText) {
-                    const scaleFactor = Math.min(newWidth / startWidth, newHeight / startHeight); // Use min scale factor
-                    const newFontSize = startFontSize * scaleFactor;
-                    resizingElement.style.fontSize = `${Math.max(10, newFontSize)}px`; // Min font size 10px
+                    // Use the smaller scale factor to ensure text fits
+                    const scaleFactor = Math.min(newWidth / startWidth, newHeight / startHeight);
+                    const newFontSize = Math.max(10, startFontSize * scaleFactor); // Min font size 10px
+                    resizingElement.style.fontSize = `${newFontSize}px`;
                 }
             }
 
-
+            /**
+             * Handles mouseup/touchend after resizing an element.
+             * Finalizes the element's size and removes temporary listeners.
+             * @param {MouseEvent|TouchEvent} e - The event object.
+             */
             function onResizeMouseUp(e) {
                 if (!resizingElement) return;
-                resizingElement = null; resizeHandle = null;
+
+                // Remove temporary event listeners
                 document.removeEventListener('mousemove', onResizeMouseMove);
                 document.removeEventListener('mouseup', onResizeMouseUp);
+                document.removeEventListener('touchmove', onResizeMouseMove);
+                document.removeEventListener('touchend', onResizeMouseUp);
+
+                resizingElement = null; // Clear resizing element reference
+                resizeHandle = null; // Clear handle reference
+
+                saveNotebookState(); // Save state after resize completes
             }
 
+            /**
+             * Selects a scrapbook element, highlighting it and bringing it to the front.
+             * @param {HTMLElement} element - The element to select.
+             */
             function selectElement(element) {
+                // Deselect previously selected element
                 if (selectedElement && selectedElement !== element) {
                     selectedElement.classList.remove('selected');
-                    // Reset z-index to a normal range if it was selected
-                    selectedElement.style.zIndex = Math.max(10, parseInt(selectedElement.style.zIndex || 510) - 500);
+                    // Optionally reset z-index slightly lower if needed, but keep it above base
+                    // selectedElement.style.zIndex = Math.max(10, parseInt(selectedElement.style.zIndex || 10) - 500);
                 }
+                // Select the new element
                 if (element) {
                     element.classList.add('selected');
                     selectedElement = element;
-                    // Elevate z-index when selected
-                    element.style.zIndex = parseInt(element.style.zIndex || 10) + 500;
+                    // Bring the selected element to the top
+                    elementZIndex++; // Ensure it gets the highest z-index
+                    element.style.zIndex = elementZIndex;
                 }
             }
 
+            /**
+             * Deselects the currently selected scrapbook element.
+             */
             function deselectElement() {
                 if (selectedElement) {
                     selectedElement.classList.remove('selected');
-                     // Reset z-index when deselected
-                    selectedElement.style.zIndex = Math.max(10, parseInt(selectedElement.style.zIndex || 510) - 500);
+                    // Optionally reset z-index when deselected, but ensure it's still above base
+                    // selectedElement.style.zIndex = Math.max(10, parseInt(selectedElement.style.zIndex || 10) - 500);
                     selectedElement = null;
                 }
             }
 
+            /**
+             * Handles clicks outside interactive elements to deselect.
+             */
             document.addEventListener('click', (e) => {
                 // Check if the click is outside any scrapbook element, modal, or controls
                 if (!e.target.closest('.scrapbook-element') &&
@@ -1402,42 +1775,146 @@
                     !e.target.closest('.drawing-controls'))
                 {
                     deselectElement();
-                    selectorModal.style.display = 'none';
+                    if (selectorModal.classList.contains('visible')) {
+                         closeModal(); // Close modal if clicking outside
+                    }
                 }
             });
 
-            function moveVisibleContentToStorage() {
-                const leftContent = leftPageDisplay.querySelector('.page-content:not(.placeholder-page)');
-                if (leftContent) pageDataStorage.appendChild(leftContent);
-                const rightContent = rightPageDisplay.querySelector('.page-content:not(.placeholder-page)');
-                if (rightContent) pageDataStorage.appendChild(rightContent);
+
+            /**
+             * Saves the current content of visible pages back to the `pages` array.
+             * This is done before turning the page or potentially before saving state.
+             */
+            function storeVisiblePageData() {
+                [leftPageDisplay, rightPageDisplay].forEach(displayArea => {
+                    const pageElement = displayArea.querySelector('.page-content:not(.placeholder-page)');
+                    if (pageElement) {
+                        const pageNum = parseInt(pageElement.dataset.pageNumber);
+                        const pageData = pages.find(p => p.pageNumber === pageNum);
+                        if (pageData) {
+                            // Update style and font classes
+                            pageStyleClasses.forEach(cls => { if (pageElement.classList.contains(cls)) pageData.styleClass = cls; });
+                            fontClasses.forEach(cls => { if (pageElement.classList.contains(cls)) pageData.fontClass = cls; });
+
+                            // Update elements data
+                            pageData.elements = [];
+                            pageElement.querySelectorAll('.scrapbook-element').forEach(el => {
+                                pageData.elements.push(getScrapbookElementData(el));
+                            });
+                        }
+                    }
+                });
             }
 
+            /**
+             * Extracts data from a scrapbook element for saving.
+             * @param {HTMLElement} element - The scrapbook element.
+             * @returns {object} Data object representing the element.
+             */
+             function getScrapbookElementData(element) {
+                const data = {
+                    type: '',
+                    left: element.style.left,
+                    top: element.style.top,
+                    width: element.style.width,
+                    height: element.style.height,
+                    zIndex: element.style.zIndex || '10', // Default zIndex if not set
+                };
+
+                if (element.classList.contains('scrapbook-text')) {
+                    data.type = 'text';
+                    data.content = element.innerHTML; // Save innerHTML to keep formatting
+                    data.fontSize = element.style.fontSize;
+                } else if (element.classList.contains('scrapbook-image')) {
+                    data.type = 'image';
+                    const img = element.querySelector('img');
+                    data.src = img ? img.getAttribute('src') : ''; // Use getAttribute for src
+                    data.alt = img ? img.alt : '';
+                } else if (element.classList.contains('scrapbook-shape')) {
+                    data.type = 'shape';
+                    data.shapeType = [...element.classList].find(cls => shapes.some(s => s.id === cls));
+                } else if (element.classList.contains('scrapbook-sticker')) {
+                    data.type = 'sticker';
+                    data.content = element.textContent;
+                }
+                return data;
+            }
+
+            /**
+             * Updates the enabled/disabled state of control buttons based on the current view.
+             */
             function updateButtonStates() {
+                // Page Navigation Buttons
                 prevButton.disabled = currentSpreadIndex <= 0;
                 const lastPageNumber = totalPages - 1;
                 const rightVisiblePageNum = (currentSpreadIndex - 1) * 2 + 1;
                 nextButton.disabled = rightVisiblePageNum >= lastPageNumber && currentSpreadIndex !== 0;
 
-                const leftPage = leftPageDisplay.querySelector('.page-content:not(.placeholder-page)');
-                const rightPage = rightPageDisplay.querySelector('.page-content:not(.placeholder-page)');
-                const canAddElements = currentSpreadIndex !== 0 && (leftPage || rightPage);
-
+                // Element/Drawing Action Buttons (enabled only when on actual pages, not cover)
+                const canAddElements = currentSpreadIndex !== 0;
                 addImageButton.disabled = !canAddElements;
                 addShapeButton.disabled = !canAddElements;
                 addStickerButton.disabled = !canAddElements;
                 drawingButton.disabled = !canAddElements;
+                fontSelect.disabled = !canAddElements;
+                pageStyleSelect.disabled = !canAddElements;
 
-                 // Update tooltips based on disabled state
+                 // Update tooltips based on disabled state (for action buttons)
                  const disabledReason = currentSpreadIndex === 0 ? "Actions unavailable on cover" : "Navigate to a page first";
                  addImageButton.title = addImageButton.disabled ? disabledReason : "Add Image from Device";
                  addShapeButton.title = addShapeButton.disabled ? disabledReason : "Add Shape";
                  addStickerButton.title = addStickerButton.disabled ? disabledReason : "Add Sticker";
                  drawingButton.title = drawingButton.disabled ? disabledReason : "Toggle Drawing Mode";
+                 fontSelect.title = fontSelect.disabled ? disabledReason : "Select Page Font";
+                 pageStyleSelect.title = pageStyleSelect.disabled ? disabledReason : "Select Page Style";
             }
 
+             /**
+             * Updates the font and page style dropdowns to reflect the style of the visible page(s).
+             * Prefers the right page's style if both are visible.
+             */
+             function updatePageStyleAndFontControls() {
+                let targetPage = null;
+                const rightPageContentEl = rightPageDisplay.querySelector('.page-content:not(.placeholder-page)');
+                const leftPageContentEl = leftPageDisplay.querySelector('.page-content:not(.placeholder-page)');
+
+                if (rightPageContentEl) {
+                    targetPage = rightPageContentEl;
+                } else if (leftPageContentEl) {
+                    targetPage = leftPageContentEl;
+                }
+
+                if (targetPage) {
+                    // Find and set the selected font
+                    let currentFont = fontClasses.find(cls => targetPage.classList.contains(cls)) || 'font-kalam';
+                    fontSelect.value = currentFont;
+
+                    // Find and set the selected page style
+                    let currentStyle = pageStyleClasses.find(cls => targetPage.classList.contains(cls)) || 'page-style-lined';
+                    pageStyleSelect.value = currentStyle;
+                } else {
+                    // Reset to defaults if no page is visible (e.g., on cover)
+                    fontSelect.value = 'font-kalam';
+                    pageStyleSelect.value = 'page-style-lined';
+                }
+             }
+
+
+            /**
+             * Handles the page turning animation and logic.
+             * @param {number} direction - 1 for next, -1 for previous.
+             */
             function performPageTurn(direction) {
-                deselectElement();
+                // Ensure page turn is possible
+                if ((direction === -1 && prevButton.disabled) || (direction === 1 && nextButton.disabled)) {
+                    return;
+                }
+
+                deselectElement(); // Deselect any element before turning
+                storeVisiblePageData(); // Save data from currently visible pages
+                if (isDrawingMode) deactivateDrawingMode(true); // Save drawing if active
+
                 const outLeftClass = direction > 0 ? 'page-flipping-out-left' : 'page-flipping-in-left';
                 const outRightClass = direction > 0 ? 'page-flipping-out-right' : 'page-flipping-in-right';
 
@@ -1445,19 +1922,20 @@
                 leftPageDisplay.classList.add(outLeftClass);
                 rightPageDisplay.classList.add(outRightClass);
 
-                // Disable buttons during animation
+                // Disable controls during animation
                 prevButton.disabled = true;
                 nextButton.disabled = true;
-                addImageButton.disabled = true; // Disable other controls too
+                addImageButton.disabled = true;
                 addShapeButton.disabled = true;
                 addStickerButton.disabled = true;
-                drawingButton.disabled = true; // Disable drawing toggle during flip
+                drawingButton.disabled = true;
+                fontSelect.disabled = true;
+                pageStyleSelect.disabled = true;
 
                 // Wait for half the animation duration before changing content
                 setTimeout(() => {
-                    moveVisibleContentToStorage(); // Save current page content
                     currentSpreadIndex += direction; // Update page index
-                    updateView(); // Load new page content
+                    updateView(); // Load new page content (attaches listeners)
 
                     // Add classes to start the incoming page animation
                     const inLeftClass = direction > 0 ? 'page-flipping-in-left' : 'page-flipping-out-left';
@@ -1470,131 +1948,158 @@
 
                     // Remove animation classes after a short delay to allow animation to start
                     setTimeout(() => {
-                        leftPageDisplay.classList.remove(inLeftClass);
-                        rightPageDisplay.classList.remove(inRightClass);
-                        leftPageDisplay.classList.remove(outLeftClass);
-                        rightPageDisplay.classList.remove(outRightClass);
+                        leftPageDisplay.classList.remove(inLeftClass, outLeftClass);
+                        rightPageDisplay.classList.remove(inRightClass, outRightClass);
                          // Re-enable buttons after animation is complete
                         updateButtonStates();
-                    }, animationDuration / 2); // Remove classes after the second half of animation
-                }, animationDuration / 2); // Change content halfway through animation
+                        saveNotebookState(); // Save the state after page turn completes
+                    }, animationDuration / 2); // Remove classes after the second half
+                }, animationDuration / 2); // Change content halfway through
             }
 
             // --- Element Creation Functions ---
 
+            /**
+             * Adds an image element to the target page.
+             * @param {string} imageDataUrl - The data URL of the image.
+             * @param {HTMLElement} targetPageElement - The page content element to add to.
+             */
             function addImageElement(imageDataUrl, targetPageElement) {
                 if (!targetPageElement || targetPageElement.classList.contains('placeholder-page')) return;
                 deselectElement();
+
                 const imgElementContainer = document.createElement('div');
                 imgElementContainer.classList.add('scrapbook-element', 'scrapbook-image');
+
                 const img = document.createElement('img');
                 img.src = imageDataUrl;
-                img.alt = "User Added Image"; // Add alt text
+                img.alt = "User Added Image";
                 img.onerror = function() {
                     console.error("Failed to load image:", imageDataUrl.substring(0, 50) + "...");
-                    // Replace with a placeholder image on error
-                     img.src = `https://placehold.co/150x100/fecaca/991b1b?text=Load\\nError`;
-                     img.alt = "Image load error";
+                    img.src = `https://placehold.co/150x100/fecaca/991b1b?text=Load\\nError`; // Placeholder on error
+                    img.alt = "Image load error";
+                    // Adjust container size if the placeholder is loaded
+                    if (!imgElementContainer.style.width) imgElementContainer.style.width = '150px';
+                    if (!imgElementContainer.style.height) imgElementContainer.style.height = '100px';
                 };
                 imgElementContainer.appendChild(img);
 
-                // Position the new image element
+                // Position the new image element near the top-left, slightly randomized
                 const pasteX = targetPageElement.scrollLeft + targetPageElement.offsetWidth * 0.1 + Math.random() * 20;
                 const pasteY = targetPageElement.scrollTop + targetPageElement.offsetHeight * 0.1 + Math.random() * 20;
                 imgElementContainer.style.position = 'absolute';
                 imgElementContainer.style.left = `${pasteX}px`;
                 imgElementContainer.style.top = `${pasteY}px`;
 
-                // Set initial z-index
-                elementZIndex++;
-                imgElementContainer.style.zIndex = elementZIndex;
+                elementZIndex++; imgElementContainer.style.zIndex = elementZIndex; // Set z-index
 
-                // Adjust size after image loads to maintain aspect ratio
+                // Adjust size after image loads to maintain aspect ratio and set max size
                 img.onload = () => {
-                    const maxWidth = 200;
-                    const maxHeight = 200;
-                    let width = img.naturalWidth;
-                    let height = img.naturalHeight;
+                    // Skip resizing if it's the error placeholder
+                    if (img.src.startsWith('https://placehold.co/')) {
+                        if (!imgElementContainer.style.width) imgElementContainer.style.width = '150px';
+                        if (!imgElementContainer.style.height) imgElementContainer.style.height = '100px';
+                    } else {
+                        const maxWidth = 200; const maxHeight = 200;
+                        let width = img.naturalWidth; let height = img.naturalHeight;
+                        if (!width || !height) { width = 150; height = 100; } // Default size if natural dims fail
 
-                    // Provide default size if natural dimensions are zero or invalid
-                    if (!width || !height) { width = 150; height = 100; }
-
-                    // Scale down if larger than max dimensions
-                    if (width > maxWidth || height > maxHeight) {
-                        const scale = Math.min(maxWidth / width, maxHeight / height);
-                        width *= scale;
-                        height *= scale;
+                        if (width > maxWidth || height > maxHeight) {
+                            const scale = Math.min(maxWidth / width, maxHeight / height);
+                            width *= scale; height *= scale;
+                        }
+                        imgElementContainer.style.width = `${width}px`;
+                        imgElementContainer.style.height = `${height}px`;
                     }
 
-                    imgElementContainer.style.width = `${width}px`;
-                    imgElementContainer.style.height = `${height}px`;
-
-                    // Make the element interactive after loading and sizing
+                    // Make interactive only after loading and sizing
                     if (!imgElementContainer.dataset.interactive) {
                          makeElementInteractive(imgElementContainer);
                          selectElement(imgElementContainer); // Select the new element
+                         saveNotebookState(); // Save after adding and sizing
                     }
                 };
 
-                // Append to the target page
                 targetPageElement.appendChild(imgElementContainer);
 
-                 // Make interactive immediately if image is already complete (cached)
-                 if (img.complete) {
-                     makeElementInteractive(imgElementContainer);
-                     selectElement(imgElementContainer);
+                 // Handle cases where image is already loaded/cached
+                 if (img.complete && img.naturalWidth > 0) {
+                     img.onload(); // Trigger onload manually
+                 } else if (img.complete && !img.src.startsWith('https://placehold.co/')) {
+                     // If complete but failed to load (naturalWidth is 0), trigger onerror
+                     img.onerror();
                  }
             }
 
+            /**
+             * Adds a shape element to the target page.
+             * @param {string} shapeType - The type of shape ('circle', 'square', 'line').
+             * @param {HTMLElement} targetPage - The page content element.
+             */
             function addShapeElement(shapeType, targetPage) {
                 if (!targetPage || targetPage.classList.contains('placeholder-page')) return;
                 deselectElement();
+
                 const shapeElement = document.createElement('div');
                 shapeElement.classList.add('scrapbook-element', 'scrapbook-shape', shapeType);
+
                 const pasteX = targetPage.scrollLeft + targetPage.offsetWidth * 0.1 + Math.random() * 20;
                 const pasteY = targetPage.scrollTop + targetPage.offsetHeight * 0.1 + Math.random() * 20;
                 shapeElement.style.position = 'absolute';
                 shapeElement.style.left = `${pasteX}px`;
                 shapeElement.style.top = `${pasteY}px`;
-                shapeElement.style.width = shapeType === 'line' ? '100px' : '50px';
+                shapeElement.style.width = shapeType === 'line' ? '100px' : '50px'; // Initial size
                 shapeElement.style.height = shapeType === 'line' ? '4px' : '50px';
-                elementZIndex++;
-                shapeElement.style.zIndex = elementZIndex;
+                elementZIndex++; shapeElement.style.zIndex = elementZIndex; // Set z-index
+
                 targetPage.appendChild(shapeElement);
                 makeElementInteractive(shapeElement);
                 selectElement(shapeElement);
+                saveNotebookState(); // Save after adding
             }
 
+            /**
+             * Adds a sticker element to the target page.
+             * @param {string} sticker - The sticker character (emoji).
+             * @param {HTMLElement} targetPage - The page content element.
+             */
             function addStickerElement(sticker, targetPage) {
                 if (!targetPage || targetPage.classList.contains('placeholder-page')) return;
                 deselectElement();
+
                 const stickerElement = document.createElement('div');
                 stickerElement.classList.add('scrapbook-element', 'scrapbook-sticker');
                 stickerElement.textContent = sticker;
+
                 const pasteX = targetPage.scrollLeft + targetPage.offsetWidth * 0.1 + Math.random() * 20;
                 const pasteY = targetPage.scrollTop + targetPage.offsetHeight * 0.1 + Math.random() * 20;
                 stickerElement.style.position = 'absolute';
                 stickerElement.style.left = `${pasteX}px`;
                 stickerElement.style.top = `${pasteY}px`;
-                stickerElement.style.width = 'auto'; // Stickers size based on content
+                stickerElement.style.width = 'auto'; // Size based on content
                 stickerElement.style.height = 'auto';
-                elementZIndex++;
-                stickerElement.style.zIndex = elementZIndex;
+                elementZIndex++; stickerElement.style.zIndex = elementZIndex; // Set z-index
+
                 targetPage.appendChild(stickerElement);
                 makeElementInteractive(stickerElement);
                 selectElement(stickerElement);
+                saveNotebookState(); // Save after adding
             }
 
             // --- Modal Functions ---
 
+            /**
+             * Shows the selector modal (for shapes or stickers).
+             * @param {string} type - 'shape' or 'sticker'.
+             * @param {function} callback - Function to call when an item is selected.
+             */
             function showSelectorModal(type, callback) {
                 // Determine the target page (prefer right, then left)
                 let targetPage = rightPageDisplay.querySelector('.page-content:not(.placeholder-page)');
                 if (!targetPage) {
                     targetPage = leftPageDisplay.querySelector('.page-content:not(.placeholder-page)');
                 }
-                // If no valid page, don't show modal
-                if (!targetPage) return;
+                if (!targetPage) return; // Don't show if no valid page target
 
                 modalTitle.textContent = type === 'shape' ? 'Select a Shape' : 'Select a Sticker';
                 modalGrid.innerHTML = ''; // Clear previous items
@@ -1603,41 +2108,49 @@
 
                 items.forEach(item => {
                     const div = document.createElement('div');
-                    div.classList.add('modal-item', type === 'shape' ? `shape-${item.id || item}` : 'sticker'); // Add class for styling/preview
+                    div.classList.add('modal-item', type === 'shape' ? `shape-${item.id || item}` : 'sticker');
+                    div.setAttribute('role', 'button'); // Accessibility
+
                     if (type === 'shape') {
                         div.textContent = item.name;
-                        div.dataset.value = item.id; // Store shape ID
+                        div.dataset.value = item.id;
+                        div.setAttribute('aria-label', `Add ${item.name} shape`);
                     } else {
                         div.textContent = item; // Sticker emoji
-                        div.dataset.value = item; // Store sticker emoji
+                        div.dataset.value = item;
+                        div.setAttribute('aria-label', `Add ${item} sticker`);
                     }
 
                     // Add click listener to add the selected item
                     div.addEventListener('click', () => {
                         callback(div.dataset.value, targetPage); // Pass value and target page
-                        selectorModal.style.display = 'none'; // Close modal
+                        closeModal(); // Close modal after selection
                     });
-
                     modalGrid.appendChild(div);
                 });
 
-                selectorModal.style.display = 'flex'; // Show the modal
+                selectorModal.classList.add('visible'); // Show the modal with transition
             }
+
+             /** Closes the selector modal */
+             function closeModal() {
+                 selectorModal.classList.remove('visible');
+             }
 
             // --- Drawing Functions ---
 
+            /** Toggles the drawing mode on/off or initiates page targeting */
             function toggleDrawingMode() {
-                if (drawingButton.disabled) return; // Prevent toggle if button is disabled
+                if (drawingButton.disabled) return;
 
                 if (isDrawingMode) {
-                    // Deactivate drawing mode if currently active
-                    deactivateDrawingMode(true); // Save drawing on deactivate
+                    deactivateDrawingMode(true); // Deactivate and save drawing
                 } else {
-                    // Activate drawing mode pending state
+                    // Activate drawing mode pending state (wait for page click)
                     isDrawingModePending = true;
-                    body.classList.add('drawing-mode-pending'); // Change cursor on body
+                    body.classList.add('drawing-mode-pending'); // Change cursor
                     drawingButton.classList.add('bg-emerald-600'); // Indicate active state
-                    drawingButton.textContent = "Click Page"; // Prompt user to click a page
+                    drawingButton.textContent = "Click Page";
                     drawingControls.style.display = 'flex'; // Show drawing controls
 
                     // Add listener to capture the first click/touch on a page
@@ -1647,13 +2160,17 @@
                 }
             }
 
+            /**
+             * Handles the user clicking/touching a page to start drawing.
+             * @param {MouseEvent|TouchEvent} e - The event object.
+             */
             function handlePageTargeting(e) {
                 if (!isDrawingModePending) return; // Only handle if pending
 
                  const clickedPage = e.target.closest('.page-content:not(.placeholder-page)');
 
                  if (clickedPage) {
-                     e.preventDefault(); // Prevent default touch/click behavior
+                     if (e.cancelable) e.preventDefault(); // Prevent default touch/click behavior
 
                      const pageNum = parseInt(clickedPage.dataset.pageNumber);
 
@@ -1661,7 +2178,8 @@
                          // Remove the temporary listener
                          notebook.removeEventListener('mousedown', pageTargetListener);
                          notebook.removeEventListener('touchstart', pageTargetListener);
-                         pageTargetListener = null; // Clear listener reference
+                         pageTargetListener = null;
+
                          body.classList.remove('drawing-mode-pending'); // Reset cursor
 
                          // Activate drawing mode on the selected page
@@ -1673,67 +2191,86 @@
                  }
             }
 
-
+            /**
+             * Activates drawing mode on a specific page.
+             * @param {HTMLElement} targetPageElement - The page content element.
+             * @param {number} targetPageNum - The page number.
+             */
             function activateDrawingMode(targetPageElement, targetPageNum) {
                 if (!targetPageElement) return;
 
                 isDrawingModePending = false; // No longer pending
-                isDrawingMode = true; // Drawing mode is now active
-                activeDrawingPageNum = targetPageNum; // Set the page number being drawn on
+                isDrawingMode = true;
+                activeDrawingPageNum = targetPageNum;
 
-                drawingButton.textContent = "Stop Draw"; // Change button text
+                drawingButton.textContent = "Stop Draw"; // Update button text
 
                 // Position and size the canvas over the target page
                 const pageRect = targetPageElement.getBoundingClientRect();
-                const notebookRect = notebook.getBoundingClientRect(); // Get notebook position for relative canvas positioning
-
+                const notebookRect = notebook.getBoundingClientRect();
                 drawingCanvas.style.position = 'absolute';
-                drawingCanvas.style.top = `${pageRect.top - notebookRect.top}px`; // Position relative to notebook
+                drawingCanvas.style.top = `${pageRect.top - notebookRect.top}px`;
                 drawingCanvas.style.left = `${pageRect.left - notebookRect.left}px`;
-                drawingCanvas.width = pageRect.width; // Set canvas drawing surface size
+                drawingCanvas.width = pageRect.width; // Set canvas internal size
                 drawingCanvas.height = pageRect.height;
                 drawingCanvas.style.width = `${pageRect.width}px`; // Set canvas display size
                 drawingCanvas.style.height = `${pageRect.height}px`;
 
-                // Configure the drawing context (color, size, alpha)
+                // Configure the drawing context (color, size, mode)
                 configureDrawingContext();
 
-                // Clear the canvas and load any saved drawing for this page
+                // Clear the canvas and load existing drawing for this page
                 drawingContext.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
                 const savedDataUrl = pageDrawings[activeDrawingPageNum];
-                currentDrawingStrokes = []; // Reset strokes for the new drawing session
-                undoDrawing.disabled = true; // Disable undo initially
+                currentDrawingStrokes = []; // Reset strokes for the new session
+                undoDrawing.disabled = true;
 
                 if (savedDataUrl) {
                     const img = new Image();
                     img.onload = () => {
-                        drawingContext.drawImage(img, 0, 0); // Draw the saved image onto the canvas
+                        drawingContext.drawImage(img, 0, 0); // Draw saved image onto canvas
+                        // Convert the loaded image data into a "stroke" for undo purposes
+                        // This is a simplified approach; a more robust undo would store vector data
+                        currentDrawingStrokes.push({ type: 'image', dataUrl: savedDataUrl });
+                        undoDrawing.disabled = false;
                     };
-                    img.src = savedDataUrl; // Load the saved drawing
+                    img.src = savedDataUrl;
                 }
 
-                // Hide the saved drawing image element on the page
+                // Hide the static saved drawing image on the page itself
                 const savedDrawingImg = targetPageElement.querySelector('.saved-drawing');
                 if (savedDrawingImg) savedDrawingImg.style.display = 'none';
 
                 // Show the canvas and make it interactive
                 drawingCanvas.style.display = 'block';
-                drawingCanvas.style.zIndex = 1000; // Ensure canvas is above page content
-                drawingCanvas.style.pointerEvents = 'auto'; // Allow mouse/touch events on canvas
+                drawingCanvas.style.zIndex = 1000;
+                drawingCanvas.style.pointerEvents = 'auto';
             }
 
+            /** Configures the drawing context based on current settings (color, size, mode). */
             function configureDrawingContext() {
                 if (!drawingContext) return;
-                drawingContext.strokeStyle = currentColor; // Use the selected color
-                drawingContext.lineWidth = currentBrushSize;
-                // Decreased opacity for highlighter mode (from 0.3 to 0.15)
-                drawingContext.globalAlpha = isHighlighterMode ? 0.15 : 1.0;
+
                 drawingContext.lineCap = 'round';
                 drawingContext.lineJoin = 'round';
+
+                if (isEraserMode) {
+                    drawingContext.globalCompositeOperation = 'destination-out'; // Erase mode
+                    drawingContext.lineWidth = currentBrushSize; // Eraser uses current size
+                    drawingCanvas.classList.add('eraser-active');
+                } else {
+                    drawingContext.globalCompositeOperation = 'source-over'; // Normal drawing
+                    drawingContext.strokeStyle = currentColor;
+                    drawingContext.lineWidth = currentBrushSize;
+                    // Apply transparency for highlighter
+                    drawingContext.globalAlpha = isHighlighterMode ? 0.15 : 1.0;
+                    drawingCanvas.classList.remove('eraser-active');
+                }
             }
 
+            /** Deactivates drawing mode, optionally saving the drawing. */
             function deactivateDrawingMode(save = true) {
-                 // Handle pending state cancellation
+                 // Handle cancellation of pending state
                  if (isDrawingModePending) {
                      isDrawingModePending = false;
                      if (pageTargetListener) {
@@ -1745,337 +2282,506 @@
                      drawingButton.classList.remove('bg-emerald-600');
                      drawingButton.textContent = "Draw";
                      drawingControls.style.display = 'none';
-                     return; // Exit if only pending state was active
+                     return;
                  }
 
-                if (!isDrawingMode) return; // Do nothing if not in drawing mode
+                if (!isDrawingMode) return;
 
                 if (save && activeDrawingPageNum !== null) {
-                    // Save the current canvas drawing as a data URL
+                    // Save the current canvas state as a data URL
                     const currentDataUrl = drawingCanvas.toDataURL('image/png');
-
-                    // Create a blank canvas to compare against (to check if anything was drawn)
-                    const blankCanvas = document.createElement('canvas');
-                    blankCanvas.width = drawingCanvas.width;
-                    blankCanvas.height = drawingCanvas.height;
+                    const blankCanvas = document.createElement('canvas'); // Check against blank
+                    blankCanvas.width = drawingCanvas.width; blankCanvas.height = drawingCanvas.height;
                     const blankDataUrl = blankCanvas.toDataURL('image/png');
 
-                    // Find the corresponding saved drawing image element on the page
                     const pageElement = document.querySelector(`.page-content[data-page-number="${activeDrawingPageNum}"]`);
                     const savedDrawingImg = pageElement ? pageElement.querySelector('.saved-drawing') : null;
 
-                    // If the canvas is not blank, save the drawing and display the image
-                    if (currentDataUrl !== blankDataUrl) {
-                         pageDrawings[activeDrawingPageNum] = currentDataUrl; // Store the drawing
+                    if (currentDataUrl !== blankDataUrl) { // If something was drawn
+                         pageDrawings[activeDrawingPageNum] = currentDataUrl; // Store drawing data
                          if (savedDrawingImg) {
                              savedDrawingImg.src = currentDataUrl;
-                             savedDrawingImg.style.display = 'block'; // Show the saved image
+                             savedDrawingImg.style.display = 'block'; // Show static image
                          }
-                    } else {
-                        // If the canvas is blank, remove any saved drawing for this page
-                        delete pageDrawings[activeDrawingPageNum];
+                         saveNotebookState(); // Persist drawing change
+                    } else { // If canvas is blank
+                        delete pageDrawings[activeDrawingPageNum]; // Remove saved data
                          if (savedDrawingImg) {
-                             savedDrawingImg.src = ''; // Clear the image source
-                             savedDrawingImg.style.display = 'none'; // Hide image
+                             savedDrawingImg.src = '';
+                             savedDrawingImg.style.display = 'none'; // Hide static image
                          }
+                         saveNotebookState(); // Persist drawing removal
                     }
                 }
 
                 // Reset drawing state variables
                 isDrawingMode = false;
                 activeDrawingPageNum = null;
-                currentDrawingStrokes = []; // Clear strokes for the next drawing session
+                currentDrawingStrokes = [];
 
-                // Reset button text and hide controls
+                // Reset UI
                 drawingButton.classList.remove('bg-emerald-600');
                 drawingButton.textContent = "Draw";
                 drawingControls.style.display = 'none';
-
-                // Hide and disable the canvas
                 drawingCanvas.style.display = 'none';
-                drawingCanvas.style.zIndex = 5; // Reset z-index
-                drawingCanvas.style.pointerEvents = 'none'; // Disable interaction
+                drawingCanvas.style.pointerEvents = 'none';
+                drawingCanvas.classList.remove('eraser-active');
             }
 
+            /** Toggles highlighter mode */
             function toggleHighlighterMode() {
                 isHighlighterMode = !isHighlighterMode;
                 highlighterButton.classList.toggle('selected', isHighlighterMode);
 
+                // Deactivate eraser if activating highlighter
+                if (isHighlighterMode && isEraserMode) {
+                    deactivateEraserMode();
+                }
+
                 // Set brush size based on mode
                 currentBrushSize = isHighlighterMode ? highlighterSize : currentPenSize;
 
-                // Update drawing context immediately if drawing mode is active
                 if (isDrawingMode) configureDrawingContext();
             }
 
+            /** Toggles eraser mode */
+            function toggleEraserMode() {
+                isEraserMode = !isEraserMode;
+                eraserButton.classList.toggle('selected', isEraserMode);
+
+                // Deactivate highlighter if activating eraser
+                if (isEraserMode && isHighlighterMode) {
+                    deactivateHighlighterMode();
+                }
+
+                // Set brush size (eraser uses pen size for variability)
+                currentBrushSize = isEraserMode ? currentPenSize + eraserBaseSize : currentPenSize; // Make eraser slightly larger
+
+                if (isDrawingMode) configureDrawingContext();
+            }
+
+            /** Deactivates highlighter mode (called when eraser is activated) */
+            function deactivateHighlighterMode() {
+                if (!isHighlighterMode) return;
+                isHighlighterMode = false;
+                highlighterButton.classList.remove('selected');
+                currentBrushSize = currentPenSize; // Revert to pen size
+            }
+
+            /** Deactivates eraser mode (called when highlighter/color is activated) */
+            function deactivateEraserMode() {
+                if (!isEraserMode) return;
+                isEraserMode = false;
+                eraserButton.classList.remove('selected');
+                currentBrushSize = isHighlighterMode ? highlighterSize : currentPenSize; // Revert to pen/highlighter size
+            }
+
+
+            /** Starts a drawing stroke or eraser path */
             function startDrawing(e) {
-                if (!isDrawingMode || isDrawingModePending) return; // Only start if in active drawing mode
-                e.preventDefault(); // Prevent scrolling/default touch actions
+                if (!isDrawingMode || isDrawingModePending) return;
+                if (e.cancelable) e.preventDefault(); // Prevent scrolling/default touch actions
 
                 isDrawing = true;
-                const pos = getCanvasPos(e); // Get mouse/touch position relative to canvas
+                const pos = getCanvasPos(e);
                 lastX = pos.x;
                 lastY = pos.y;
 
-                configureDrawingContext(); // Apply current color, size, and alpha
+                configureDrawingContext(); // Ensure context is set correctly
 
-                 // Start a new stroke
+                 // Start a new stroke object for undo
                  currentDrawingStrokes.push({
+                     type: 'stroke', // Mark as a drawn stroke
                      points: [{ x: lastX, y: lastY }],
                      color: drawingContext.strokeStyle,
                      size: drawingContext.lineWidth,
-                     alpha: drawingContext.globalAlpha
+                     alpha: drawingContext.globalAlpha,
+                     mode: drawingContext.globalCompositeOperation // Store if it was 'destination-out' (eraser)
                  });
 
+                // Begin the path on the canvas
                 drawingContext.beginPath();
                 drawingContext.moveTo(lastX, lastY);
             }
 
+            /** Continues drawing/erasing path */
             function draw(e) {
-                if (!isDrawing || !isDrawingMode || isDrawingModePending) return; // Only draw if drawing is active
-                e.preventDefault(); // Prevent scrolling/default touch actions
+                if (!isDrawing || !isDrawingMode || isDrawingModePending) return;
+                if (e.cancelable) e.preventDefault();
 
-                const pos = getCanvasPos(e); // Get current mouse/touch position
+                const pos = getCanvasPos(e);
                 const currentX = pos.x;
                 const currentY = pos.y;
 
-                 // Add the current point to the last stroke
+                 // Add point to the current stroke data for undo
                  const currentStrokeData = currentDrawingStrokes[currentDrawingStrokes.length - 1];
-                 if (currentStrokeData) {
+                 if (currentStrokeData && currentStrokeData.type === 'stroke') {
                      currentStrokeData.points.push({ x: currentX, y: currentY });
                  }
 
+                // Draw line segment on canvas
                 drawingContext.lineTo(currentX, currentY);
                 drawingContext.stroke();
 
-                // Update last position
                 lastX = currentX;
                 lastY = currentY;
             }
 
+            /** Stops the current drawing/erasing path */
             function stopDrawing() {
-                if (!isDrawing || !isDrawingMode) return; // Only stop if drawing was active
+                if (!isDrawing || !isDrawingMode) return;
                 isDrawing = false;
-                 // Enable undo button if there are strokes
+                // Enable undo button if there are actions to undo
                 undoDrawing.disabled = currentDrawingStrokes.length === 0;
+                // Don't save here, save when drawing mode is deactivated
             }
 
+            /** Calculates mouse/touch position relative to the canvas */
             function getCanvasPos(e) {
                 const rect = drawingCanvas.getBoundingClientRect();
-                let clientX, clientY;
-
-                // Handle both mouse and touch events
-                if (e.touches && e.touches.length > 0) {
-                    clientX = e.touches[0].clientX;
-                    clientY = e.touches[0].clientY;
-                } else {
-                    clientX = e.clientX;
-                    clientY = e.clientY;
-                }
-
-                // Calculate position relative to the canvas
+                const touch = e.type.startsWith('touch') ? e.touches[0] : e;
                 return {
-                    x: clientX - rect.left,
-                    y: clientY - rect.top
+                    x: touch.clientX - rect.left,
+                    y: touch.clientY - rect.top
                 };
             }
 
+            /** Undoes the last drawing action (stroke or clear) */
             function undoLastStroke() {
                 if (currentDrawingStrokes.length === 0 || !isDrawingMode) return;
 
-                // Remove the last stroke from the array
-                currentDrawingStrokes.pop();
+                currentDrawingStrokes.pop(); // Remove the last action
 
-                // Clear the canvas
+                // Clear the canvas completely
                 drawingContext.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
 
-                // Reload the saved background image (if any)
-                const savedDataUrl = pageDrawings[activeDrawingPageNum];
-                let backgroundPromise = Promise.resolve(); // Use a promise to handle async image loading
+                // Redraw remaining strokes/images
+                redrawCanvasFromStrokes();
 
-                if (savedDataUrl) {
-                    backgroundPromise = new Promise((resolve) => {
+                // Disable undo if no actions are left
+                undoDrawing.disabled = currentDrawingStrokes.length === 0;
+            }
+
+            /** Redraws the entire canvas based on the currentDrawingStrokes array */
+            function redrawCanvasFromStrokes() {
+                currentDrawingStrokes.forEach(action => {
+                    if (action.type === 'image') {
+                        // Redraw saved image data (if used as base)
                         const img = new Image();
-                        img.onload = () => {
-                            drawingContext.drawImage(img, 0, 0);
-                            resolve(); // Resolve promise after image is drawn
-                        };
-                         img.onerror = () => {
-                             console.error("Error loading background for undo.");
-                             resolve(); // Resolve even on error to continue
-                         }
-                        img.src = savedDataUrl;
-                    });
-                }
+                        img.onload = () => { drawingContext.drawImage(img, 0, 0); };
+                        img.src = action.dataUrl;
+                    } else if (action.type === 'stroke') {
+                        // Redraw a drawn stroke
+                        drawingContext.beginPath();
+                        drawingContext.strokeStyle = action.color;
+                        drawingContext.lineWidth = action.size;
+                        drawingContext.globalAlpha = action.alpha;
+                        drawingContext.globalCompositeOperation = action.mode; // Apply original mode (draw or erase)
+                        drawingContext.lineCap = 'round';
+                        drawingContext.lineJoin = 'round';
 
-                // After the background is loaded (or if there's none), redraw the remaining strokes
-                backgroundPromise.then(() => {
-                    redrawCurrentStrokes();
-                    // Disable undo if no strokes are left
-                    undoDrawing.disabled = currentDrawingStrokes.length === 0;
+                        action.points.forEach((point, index) => {
+                            if (index === 0) drawingContext.moveTo(point.x, point.y);
+                            else drawingContext.lineTo(point.x, point.y);
+                        });
+                        drawingContext.stroke();
+                    }
                 });
+                // IMPORTANT: Reset context to the current active mode after redrawing history
+                configureDrawingContext();
             }
 
-            function redrawCurrentStrokes() {
-                 // Redraw all strokes in the currentDrawingStrokes array
-                 currentDrawingStrokes.forEach(stroke => {
-                    drawingContext.beginPath();
-                    drawingContext.strokeStyle = stroke.color; // Use stroke's saved color
-                    drawingContext.lineWidth = stroke.size;   // Use stroke's saved size
-                    drawingContext.globalAlpha = stroke.alpha; // Use stroke's saved alpha
-                    drawingContext.lineCap = 'round';
-                    drawingContext.lineJoin = 'round';
-
-                    stroke.points.forEach((point, index) => {
-                        if (index === 0) drawingContext.moveTo(point.x, point.y);
-                        else drawingContext.lineTo(point.x, point.y);
-                    });
-                    drawingContext.stroke();
-                });
-                 // Reset the context alpha to the current mode's setting after redrawing
-                 drawingContext.globalAlpha = isHighlighterMode ? 0.15 : 1.0;
-            }
-
-
+            /** Clears the drawing canvas for the active page */
             function clearCanvas() {
-                if (!isDrawingMode || activeDrawingPageNum === null) return; // Only clear if in drawing mode
+                if (!isDrawingMode || activeDrawingPageNum === null) return;
 
                 // Clear the canvas visually
                 drawingContext.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
 
-                // Clear the stroke data and disable undo
+                // Clear stroke data and disable undo
                 currentDrawingStrokes = [];
                 undoDrawing.disabled = true;
 
-                // Remove the saved drawing data for this page
+                // Remove saved drawing data (will be persisted on deactivate)
                 delete pageDrawings[activeDrawingPageNum];
 
-                // Hide the saved drawing image element on the page
+                // Hide the static image placeholder immediately
                 const pageElement = document.querySelector(`.page-content[data-page-number="${activeDrawingPageNum}"]`);
                 if (pageElement) {
                     const savedDrawingImg = pageElement.querySelector('.saved-drawing');
                     if (savedDrawingImg) {
-                         savedDrawingImg.src = ''; // Clear image source
-                         savedDrawingImg.style.display = 'none'; // Hide image
+                         savedDrawingImg.src = '';
+                         savedDrawingImg.style.display = 'none';
                     }
                 }
+                // Note: Actual removal from storage happens in deactivateDrawingMode or saveNotebookState
             }
 
+            /** Updates the UI for the selected brush size */
             function setBrushSizeUI(size, selectedButton) {
-                currentPenSize = size;
-                // Update currentBrushSize only if not in highlighter mode
-                if (!isHighlighterMode) {
-                    currentBrushSize = currentPenSize;
-                    if (isDrawingMode) configureDrawingContext(); // Update context if drawing
+                currentPenSize = size; // Store the selected *pen* size
+
+                // Determine the actual brush size based on current mode
+                if (isEraserMode) {
+                    currentBrushSize = currentPenSize + eraserBaseSize; // Eraser size based on pen size
+                } else if (isHighlighterMode) {
+                    currentBrushSize = highlighterSize; // Fixed highlighter size
+                } else {
+                    currentBrushSize = currentPenSize; // Normal pen size
                 }
 
-                // Update UI to show selected brush size
+                if (isDrawingMode) configureDrawingContext(); // Update context if drawing
+
+                // Update UI button selection state
                 [brushSmall, brushMedium, brushLarge].forEach(btn => {
                     btn.classList.toggle('selected', btn === selectedButton);
                 });
             }
 
+            // --- Saving and Loading ---
+
+            /** Saves the entire notebook state to local storage */
+            function saveNotebookState() {
+                try {
+                    // Ensure current page data is up-to-date before saving
+                    storeVisiblePageData();
+
+                    const state = {
+                        version: 2, // Version number for future compatibility
+                        currentSpreadIndex: currentSpreadIndex,
+                        totalPages: totalPages,
+                        elementZIndex: elementZIndex,
+                        pageDrawings: pageDrawings, // Drawings are already updated
+                        pages: pages.map(pageData => ({ // Deep copy and simplify page data
+                            pageNumber: pageData.pageNumber,
+                            styleClass: pageData.styleClass,
+                            fontClass: pageData.fontClass,
+                            elements: pageData.elements.map(elData => ({ ...elData })) // Copy element data
+                        }))
+                    };
+                    localStorage.setItem(notebookStorageKey, JSON.stringify(state));
+                    // console.log("Notebook state saved.");
+                } catch (error) {
+                    console.error("Error saving notebook state to local storage:", error);
+                    // Optionally notify the user that saving failed
+                }
+            }
+
+            /** Loads notebook state from local storage or initializes defaults */
+            function loadNotebookState() {
+                try {
+                    const savedStateJSON = localStorage.getItem(notebookStorageKey);
+                    if (savedStateJSON) {
+                        const savedState = JSON.parse(savedStateJSON);
+
+                        // Basic version check (can be expanded later)
+                        if (savedState.version === 2) {
+                            currentSpreadIndex = savedState.currentSpreadIndex || 0;
+                            totalPages = savedState.totalPages || 0;
+                            elementZIndex = savedState.elementZIndex || 10;
+                            pageDrawings = savedState.pageDrawings || {};
+                            pages = savedState.pages || []; // Load page structure and elements
+
+                            // Ensure pages array is correctly populated if empty or invalid
+                            if (!pages || pages.length !== totalPages) {
+                                console.warn("Saved page data mismatch or missing. Reinitializing from templates.");
+                                initializeDefaultPages(); // Fallback to defaults
+                            } else {
+                                // Ensure z-index is recalculated based on loaded elements
+                                let maxLoadedZ = 10;
+                                pages.forEach(p => p.elements.forEach(el => {
+                                    maxLoadedZ = Math.max(maxLoadedZ, parseInt(el.zIndex) || 10);
+                                }));
+                                elementZIndex = maxLoadedZ;
+                            }
+
+                            console.log("Notebook state loaded from local storage.");
+                            return; // Exit after successful load
+                        } else {
+                            console.warn("Saved notebook state version mismatch. Initializing defaults.");
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error loading notebook state from local storage:", error);
+                    // Clear potentially corrupted data
+                    localStorage.removeItem(notebookStorageKey);
+                }
+
+                // If loading failed or no saved state, initialize defaults
+                initializeDefaultPages();
+                saveNotebookState(); // Save the initial default state
+            }
+
+            /** Initializes the `pages` array from the templates in page-data-storage */
+            function initializeDefaultPages() {
+                pages = [];
+                pageDrawings = {}; // Reset drawings
+                currentSpreadIndex = 0;
+                elementZIndex = 10; // Reset z-index counter
+
+                const templateElements = Array.from(pageDataStorage.querySelectorAll('.page-content'));
+                templateElements.sort((a, b) => parseInt(a.dataset.pageNumber) - parseInt(b.dataset.pageNumber));
+
+                templateElements.forEach(templateElement => {
+                    const pageNum = parseInt(templateElement.dataset.pageNumber);
+                    const pageData = {
+                        pageNumber: pageNum,
+                        styleClass: pageStyleClasses.find(cls => templateElement.classList.contains(cls)) || 'page-style-lined',
+                        fontClass: fontClasses.find(cls => templateElement.classList.contains(cls)) || 'font-kalam',
+                        elements: []
+                    };
+
+                    // Extract elements from the template
+                    templateElement.querySelectorAll('.scrapbook-element').forEach(el => {
+                        pageData.elements.push(getScrapbookElementData(el));
+                        // Update z-index based on template elements
+                        elementZIndex = Math.max(elementZIndex, parseInt(el.style.zIndex) || 10);
+                    });
+                    pages.push(pageData);
+                });
+                totalPages = pages.length;
+                console.log("Initialized notebook with default pages.");
+            }
+
             // --- Event Listeners ---
+
+            // Page Navigation
             prevButton.addEventListener('click', () => performPageTurn(-1));
             nextButton.addEventListener('click', () => performPageTurn(1));
 
-            // Image upload listener
+            // Add Element Buttons
             addImageButton.addEventListener('click', () => { if (!addImageButton.disabled) imageUploadInput.click(); });
+            addShapeButton.addEventListener('click', () => { if (!addShapeButton.disabled) showSelectorModal('shape', addShapeElement); });
+            addStickerButton.addEventListener('click', () => { if (!addStickerButton.disabled) showSelectorModal('sticker', addStickerElement); });
+
+            // Image Upload Handling
              imageUploadInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file && file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = (event) => {
-                        // Determine the target page (prefer right, then left)
+                        // Determine target page (prefer right, then left)
                         let targetPage = rightPageDisplay.querySelector('.page-content:not(.placeholder-page)');
-                        if (!targetPage) {
-                            targetPage = leftPageDisplay.querySelector('.page-content:not(.placeholder-page)');
-                        }
-                        // Add the image if a valid page is found
+                        if (!targetPage) targetPage = leftPageDisplay.querySelector('.page-content:not(.placeholder-page)');
+
                         if (targetPage) addImageElement(event.target.result, targetPage);
                         else console.error("No valid page to add image to.");
                     };
                     reader.readAsDataURL(file);
                 } else if (file) {
-                    // Show an alert if the selected file is not an image
-                    // Using a simple alert for now, could replace with a custom modal later
-                    alert("Please select a valid image file.");
+                    alert("Please select a valid image file."); // Simple feedback
                 }
-                // Clear the file input value so the same file can be selected again
-                e.target.value = null;
+                e.target.value = null; // Reset input
             });
 
-            // Modal trigger buttons
-            addShapeButton.addEventListener('click', () => { if (!addShapeButton.disabled) showSelectorModal('shape', addShapeElement); });
-            addStickerButton.addEventListener('click', () => { if (!addStickerButton.disabled) showSelectorModal('sticker', addStickerElement); });
-            modalClose.addEventListener('click', () => { selectorModal.style.display = 'none'; });
+            // Modal Close Button
+            modalClose.addEventListener('click', closeModal);
 
-            // Drawing mode toggle
+            // Page Style and Font Selection
+            fontSelect.addEventListener('change', (e) => {
+                if (fontSelect.disabled) return;
+                const newFontClass = e.target.value;
+                applyStyleToVisiblePages(newFontClass, 'font');
+                saveNotebookState();
+            });
+            pageStyleSelect.addEventListener('change', (e) => {
+                if (pageStyleSelect.disabled) return;
+                const newPageStyleClass = e.target.value;
+                applyStyleToVisiblePages(newPageStyleClass, 'page');
+                saveNotebookState();
+            });
+
+             /** Applies font or page style class to visible page(s) */
+             function applyStyleToVisiblePages(newClass, type) {
+                 [leftPageDisplay, rightPageDisplay].forEach(displayArea => {
+                     const pageElement = displayArea.querySelector('.page-content:not(.placeholder-page)');
+                     if (pageElement) {
+                         const classList = type === 'font' ? fontClasses : pageStyleClasses;
+                         // Remove old classes of this type
+                         classList.forEach(cls => pageElement.classList.remove(cls));
+                         // Add the new class
+                         pageElement.classList.add(newClass);
+                     }
+                 });
+             }
+
+            // Drawing Mode Toggle
             drawingButton.addEventListener('click', toggleDrawingMode);
 
-            // Color palette listener (handled by selectColor function)
-            // colorPicker.addEventListener('change', () => { if (isDrawingMode) configureDrawingContext(); }); // Removed
-
-            // Brush size button listeners
+            // Drawing Controls
             brushSmall.addEventListener('click', () => setBrushSizeUI(brushSizes.small, brushSmall));
             brushMedium.addEventListener('click', () => setBrushSizeUI(brushSizes.medium, brushMedium));
             brushLarge.addEventListener('click', () => setBrushSizeUI(brushSizes.large, brushLarge));
-
-            // Highlighter toggle
             highlighterButton.addEventListener('click', toggleHighlighterMode);
-
-            // Undo and Clear drawing buttons
+            eraserButton.addEventListener('click', toggleEraserMode); // Eraser toggle
             undoDrawing.addEventListener('click', undoLastStroke);
             clearDrawing.addEventListener('click', clearCanvas);
 
-            // Drawing canvas event listeners (mouse and touch)
+            // Drawing Canvas Event Listeners (Mouse & Touch)
             drawingCanvas.addEventListener('mousedown', startDrawing);
             drawingCanvas.addEventListener('mousemove', draw);
             drawingCanvas.addEventListener('mouseup', stopDrawing);
-            drawingCanvas.addEventListener('mouseleave', stopDrawing); // Stop drawing if mouse leaves canvas
+            drawingCanvas.addEventListener('mouseleave', stopDrawing); // Stop if mouse leaves canvas
 
-            drawingCanvas.addEventListener('touchstart', startDrawing, { passive: false }); // passive: false to allow preventDefault
+            drawingCanvas.addEventListener('touchstart', startDrawing, { passive: false });
             drawingCanvas.addEventListener('touchmove', draw, { passive: false });
             drawingCanvas.addEventListener('touchend', stopDrawing);
-            drawingCanvas.addEventListener('touchcancel', stopDrawing); // Stop drawing if touch is interrupted
+            drawingCanvas.addEventListener('touchcancel', stopDrawing); // Stop if touch is interrupted
 
-            // Global keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                 // Ignore shortcuts if typing in a contenteditable element or input
-                 if (e.target.closest('[contenteditable="true"]') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                     // Allow Backspace/Delete to delete a selected element IF the focus is NOT inside the element's text
-                     if ((e.key === 'Backspace' || e.key === 'Delete') && selectedElement && document.activeElement !== selectedElement && !selectedElement.contains(document.activeElement)) {
-                         e.preventDefault(); // Prevent default browser back/delete action
-                         selectedElement.remove();
-                         selectedElement = null;
-                     }
-                     return; // Exit function if typing
-                 }
-
-                // Page navigation with arrow keys
-                if (e.key === 'ArrowLeft' && !prevButton.disabled) {
-                    e.preventDefault(); // Prevent default scroll
-                    performPageTurn(-1);
-                } else if (e.key === 'ArrowRight' && !nextButton.disabled) {
-                    e.preventDefault(); // Prevent default scroll
-                    performPageTurn(1);
+            // Save state on element input/focusout
+            function handleElementInput(e) {
+                if (e.target.closest('.scrapbook-element[contenteditable="true"]')) {
+                    // Could add throttling here if saving on every input is too much
+                    saveNotebookState();
                 }
-                 // Delete selected element with Backspace or Delete key
-                 else if ((e.key === 'Backspace' || e.key === 'Delete') && selectedElement) {
-                     e.preventDefault(); // Prevent default browser back/delete action
-                     selectedElement.remove();
-                     selectedElement = null;
+            }
+            function handleElementFocusOut(e){
+                 if (e.target.closest('.scrapbook-element')) {
+                     saveNotebookState();
                  }
-                 // Close modal with Escape key
-                 else if (e.key === 'Escape' && selectorModal.style.display === 'flex') {
-                     selectorModal.style.display = 'none';
+            }
+
+            // Global Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                 // Ignore shortcuts if focus is within an input, textarea, or contenteditable element
+                 const activeEl = document.activeElement;
+                 const isEditing = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+
+                 // Allow Backspace/Delete for selected elements *unless* actively editing text inside it
+                  if ((e.key === 'Backspace' || e.key === 'Delete') && selectedElement && !isEditing) {
+                      e.preventDefault();
+                      selectedElement.remove();
+                      selectedElement = null;
+                      saveNotebookState();
+                      return; // Don't process other shortcuts
+                  }
+
+                 // If editing, don't process other shortcuts
+                 if (isEditing) return;
+
+                // Page navigation
+                if (e.key === 'ArrowLeft' && !prevButton.disabled) {
+                    e.preventDefault(); performPageTurn(-1);
+                } else if (e.key === 'ArrowRight' && !nextButton.disabled) {
+                    e.preventDefault(); performPageTurn(1);
+                }
+                 // Close modal
+                 else if (e.key === 'Escape' && selectorModal.classList.contains('visible')) {
+                     closeModal();
                  }
-                 // Undo drawing with Ctrl+Z (or Cmd+Z on Mac)
+                 // Undo drawing
                  else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && isDrawingMode && !undoDrawing.disabled) {
-                     e.preventDefault(); // Prevent default undo action
-                     undoLastStroke();
+                     e.preventDefault(); undoLastStroke();
                  }
             });
+
+            // Save state before unloading the page
+            window.addEventListener('beforeunload', () => {
+                 if (isDrawingMode) deactivateDrawingMode(true); // Ensure drawing is saved
+                 storeVisiblePageData(); // Ensure visible page element data is stored
+                 saveNotebookState(); // Final save
+            });
+
 
         }); // End DOMContentLoaded
     </script>
